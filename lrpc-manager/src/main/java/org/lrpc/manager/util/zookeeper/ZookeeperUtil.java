@@ -87,4 +87,20 @@ public class ZookeeperUtil {
             throw new ZookeeperException("关闭连接时发送异常");
         }
     }
+
+    /**
+     * 判断节点是否存在
+     * @param zk zookeeper实例
+     * @param nodePath 节点路径
+     * @param watcher watcher
+     * @return true 存在 | false 不存在
+     */
+    public static boolean exists(ZooKeeper zk,String nodePath,Watcher watcher) {
+        try {
+            return zk.exists(nodePath,watcher) != null;
+        } catch (KeeperException | InterruptedException e) {
+            log.error("判断节点{}是否存在发生异常",nodePath,e);
+            throw new ZookeeperException("检查zookeeper节点是否存在发生异常");
+        }
+    }
 }
