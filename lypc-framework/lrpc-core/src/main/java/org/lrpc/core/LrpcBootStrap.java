@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.ZooKeeper;
 import org.lrpc.common.Constant;
+import org.lrpc.core.discovery.Registry;
+import org.lrpc.core.discovery.impl.ZookeeperRegistry;
 import org.lrpc.manager.util.NetworkUtil;
 import org.lrpc.manager.util.zookeeper.ZookeeperNode;
 import org.lrpc.manager.util.zookeeper.ZookeeperUtil;
@@ -18,7 +20,8 @@ public class LrpcBootStrap {
     private RegistryConfig registryConfig;
     private ProtocolConfig protocolConfig;
     private int port = 8080;
-    private ZooKeeper zookeeper;
+//    TODO 待处理
+    private Registry registry;
     private LrpcBootStrap() {
     }
     public static LrpcBootStrap getInstance() {
@@ -42,8 +45,10 @@ public class LrpcBootStrap {
      * @return this当前对象实例
      */
     public LrpcBootStrap registry(RegistryConfig registryConfig) {
-//        TODO 写死了，耦合住了，需要改
-        zookeeper = ZookeeperUtil.createZookeeper();
+        /*
+         * 希望以后可以拓展更多不同的实现
+         */
+        this.registry = registryConfig.getRegistry();
         this.registryConfig = registryConfig;
         return this;
     }
@@ -70,30 +75,10 @@ public class LrpcBootStrap {
      * @return 当前this实例
      */
     public LrpcBootStrap publish(ServiceConfig<?> service) {
-
-        // 服务名称的节点
-        String parentNode = Constant.BASE_PROVIDER_PATH
-                + "/" + service.getInterface().getName();
-//        这个节点应该是一个持久节点
-        if (!ZookeeperUtil.exists(zookeeper,parentNode,null)){
-            ZookeeperNode zookeeperNode = new ZookeeperNode(parentNode, null);
-            ZookeeperUtil.createNode(zookeeper,zookeeperNode,null, CreateMode.PERSISTENT);
-        }
         /*
-        创建本机、临时节点，ip:port,
-        服务提供方的端口一般自己设定，我们还需要一个获取ip的方法
-        ip我们通常是需要一个局域网ip，而不是127.0.0.1
+        使用注册中心的概念，使用注册中心的一个实现完成注册
          */
-        String hostNode = parentNode +"/"
-                + NetworkUtil.getIp()
-                + ":"+ port;
-        if (!ZookeeperUtil.exists(zookeeper,hostNode,null)){
-            ZookeeperNode zookeeperNode = new ZookeeperNode(hostNode, null);
-            ZookeeperUtil.createNode(zookeeper,zookeeperNode,null, CreateMode.EPHEMERAL);
-        }
-        if (log.isDebugEnabled()) {
-            log.debug("服务{}已经被注册",service.getInterface().getName());
-        }
+        registry.register(service);
         return this;
     }
 
