@@ -4,7 +4,6 @@ import org.lrpc.HelloLrpc;
 import org.lrpc.core.LrpcBootStrap;
 import org.lrpc.core.ReferenceConfig;
 import org.lrpc.core.RegistryConfig;
-import sun.jvm.hotspot.HelloWorld;
 
 public class Application {
     public static void main(String[] args) {
