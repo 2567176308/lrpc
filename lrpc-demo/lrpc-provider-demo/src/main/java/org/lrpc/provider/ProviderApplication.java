@@ -7,7 +7,7 @@ import org.lrpc.core.RegistryConfig;
 import org.lrpc.core.ServiceConfig;
 import org.lrpc.provider.impl.HelloLrpcImpl;
 
-public class Application {
+public class ProviderApplication {
 
     public static void main(String[] args) {
         /*

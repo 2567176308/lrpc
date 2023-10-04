@@ -1,5 +1,13 @@
 package org.lrpc.core;
 
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.ZooKeeper;
@@ -10,7 +18,12 @@ import org.lrpc.manager.util.NetworkUtil;
 import org.lrpc.manager.util.zookeeper.ZookeeperNode;
 import org.lrpc.manager.util.zookeeper.ZookeeperUtil;
 
+import java.net.InetSocketAddress;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 @Slf4j
 public class LrpcBootStrap {
     private static final LrpcBootStrap lrpcBootStrap = new LrpcBootStrap();
@@ -20,6 +33,11 @@ public class LrpcBootStrap {
     private RegistryConfig registryConfig;
     private ProtocolConfig protocolConfig;
     private int port = 8080;
+//    channel缓冲池
+    public static final Map<InetSocketAddress, Channel> CHANNEL_CACHE = new ConcurrentHashMap<>(16);
+//    维护已经发布且暴露的服务列表 key -> interface全限定名、value - > ServiceConfig
+    private static final Map<String,ServiceConfig<?>> SERVICES_MAP = new ConcurrentHashMap<>(16);
+
 //    TODO 待处理
     private Registry registry;
     private LrpcBootStrap() {
@@ -79,6 +97,7 @@ public class LrpcBootStrap {
         使用注册中心的概念，使用注册中心的一个实现完成注册
          */
         registry.register(service);
+        SERVICES_MAP.put(service.getInterface().getName(),service);
         return this;
     }
 
@@ -95,10 +114,38 @@ public class LrpcBootStrap {
      * 开启netty服务
      */
     public void start() {
+//        创建eventLoop ,老板只负责处理请求，之后会请求分发至worker
+        EventLoopGroup boss = new NioEventLoopGroup(2);
+        EventLoopGroup worker = new NioEventLoopGroup(5);
+//        2.需要一个服务器引导程序
+        ServerBootstrap serverBootstrap = new ServerBootstrap();
+//        3.配置服务器
+        serverBootstrap = serverBootstrap.group(boss,worker)
+                .channel(NioServerSocketChannel.class)
+                .childHandler(new ChannelInitializer<SocketChannel>() {
+                    /*
+                    核心在于handler处理器
+                     */
+                    @Override
+                    protected void initChannel(SocketChannel socketChannel) throws Exception {
+                        socketChannel.pipeline().addLast(null);
+                    }
+                });
+//        4.绑定端口
+        ChannelFuture channelFuture = null;
         try {
-            Thread.sleep(10000);
+            channelFuture = serverBootstrap.bind(port).sync();
+            channelFuture.channel().closeFuture().sync();
         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+        }finally {
+            try {
+                boss.shutdownGracefully().sync();
+                worker.shutdownGracefully().sync();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
         }
     }
     /*
@@ -107,6 +154,7 @@ public class LrpcBootStrap {
     public LrpcBootStrap reference(ReferenceConfig<?> reference) {
 //        在这个方法里我们是否可以拿到相关配置项-注册中心
 //        配置reference，将来调用get方法时，方便产生代理对象
+        reference.setRegistry(registry);
         return this;
     }
 

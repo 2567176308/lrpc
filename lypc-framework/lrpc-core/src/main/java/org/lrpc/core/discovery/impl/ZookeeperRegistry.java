@@ -6,9 +6,14 @@ import org.apache.zookeeper.ZooKeeper;
 import org.lrpc.common.Constant;
 import org.lrpc.core.ServiceConfig;
 import org.lrpc.core.discovery.AbstractRegistry;
+import org.lrpc.manager.exception.DiscoveryException;
 import org.lrpc.manager.util.NetworkUtil;
 import org.lrpc.manager.util.zookeeper.ZookeeperNode;
 import org.lrpc.manager.util.zookeeper.ZookeeperUtil;
+
+import java.net.InetSocketAddress;
+import java.util.List;
+
 @Slf4j
 public class ZookeeperRegistry extends AbstractRegistry {
 
@@ -38,7 +43,7 @@ public class ZookeeperRegistry extends AbstractRegistry {
         //TODO 端口问题
         String hostNode = parentNode +"/"
                 + NetworkUtil.getIp()
-                + ":"+ 8080;
+                + ":"+ 8081;
         if (!ZookeeperUtil.exists(zookeeper,hostNode,null)){
             ZookeeperNode zookeeperNode = new ZookeeperNode(hostNode, null);
             ZookeeperUtil.createNode(zookeeper,zookeeperNode,null, CreateMode.EPHEMERAL);
@@ -46,5 +51,24 @@ public class ZookeeperRegistry extends AbstractRegistry {
         if (log.isDebugEnabled()) {
             log.debug("服务{}已经被注册",service.getInterface().getName());
         }
+    }
+
+    @Override
+    public InetSocketAddress lookup(String serviceName) {
+//        找到服务对应的节点
+        String serviceNode = Constant.BASE_PROVIDER_PATH + "/" + serviceName;
+//        2、从zk中获取她的子节点：ip+端口
+        List<String> children = ZookeeperUtil.getChildren(zookeeper,serviceNode,null);
+        List<InetSocketAddress> inetSocketAddresses = children.stream()
+                .map(ipString -> {
+                    String[] ipAndPort = ipString.split(":");
+                    String ip = ipAndPort[0];
+                    int port = Integer.parseInt(ipAndPort[1]);
+                    return new InetSocketAddress(ip, port);
+                }).toList();
+        if (inetSocketAddresses.isEmpty()) {
+            throw new DiscoveryException("没有找到任何服务");
+        }
+        return inetSocketAddresses.get(0);
     }
 }

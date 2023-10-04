@@ -6,6 +6,7 @@ import org.lrpc.common.Constant;
 import org.lrpc.manager.exception.ZookeeperException;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 @Slf4j
 public class ZookeeperUtil {
@@ -19,7 +20,7 @@ public class ZookeeperUtil {
     public static ZooKeeper createZookeeper() {
 //        定义连接参数
         String connectString = Constant.DEFAULT_ZK_CONNECT; //127.0.0.1:2181
-        int timeout = Constant.TIME_OUT; // 1000
+        int timeout = Constant.TIME_OUT; // 3000
 
         return createZookeeper(connectString,timeout);
 
@@ -101,6 +102,22 @@ public class ZookeeperUtil {
         } catch (KeeperException | InterruptedException e) {
             log.error("判断节点{}是否存在发生异常",nodePath,e);
             throw new ZookeeperException("检查zookeeper节点是否存在发生异常");
+        }
+    }
+
+    /**
+     * 查询每一个节点子元素
+     * @param zookeeper zk实例
+     * @param serviceNode 服务节点
+     * @return
+     */
+    public static List<String> getChildren(ZooKeeper zookeeper
+            , String serviceNode,Watcher watcher) {
+        try {
+            return zookeeper.getChildren(serviceNode, watcher);
+        } catch (KeeperException | InterruptedException e) {
+            log.error("获取节点【{}】的子元素时发生异常",serviceNode,e);
+            throw new RuntimeException(e);
         }
     }
 }

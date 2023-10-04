@@ -5,7 +5,7 @@ import org.lrpc.core.LrpcBootStrap;
 import org.lrpc.core.ReferenceConfig;
 import org.lrpc.core.RegistryConfig;
 
-public class Application {
+public class ConsumerApplication {
     public static void main(String[] args) {
         /*
         想尽一切办法获取代理对象，使用ReferenceConfig进行封装
@@ -24,7 +24,7 @@ public class Application {
 
         LrpcBootStrap.getInstance()
                 .application("first-rpc-consumer")
-                .registry(new RegistryConfig("zookeeper://127.0.0,1:2181"))
+                .registry(new RegistryConfig("zookeeper://127.0.0.1:2181"))
                 .reference(reference);
 
 //        获取一个代理对象

@@ -34,7 +34,6 @@ public class RegistryConfig {
 
     private String getRegistryType(String connectString,boolean type) {
         String[] split = connectString.split("://");
-        System.out.println(Arrays.toString(split));
         if (split.length != 2) {
             throw new DiscoveryException("连接url信息不合法");
         }

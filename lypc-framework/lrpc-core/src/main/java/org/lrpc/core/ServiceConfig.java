@@ -13,6 +13,6 @@ public class ServiceConfig<T> {
     }
 
     public Class<?> getInterface() {
-        return ref.getClass().getInterfaces()[0];
+        return interfaceRef;
     }
 }
