@@ -1,10 +1,9 @@
 package org.lrpc.core;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.EventLoopGroup;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -19,6 +18,7 @@ import org.lrpc.manager.util.zookeeper.ZookeeperNode;
 import org.lrpc.manager.util.zookeeper.ZookeeperUtil;
 
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +33,7 @@ public class LrpcBootStrap {
     private RegistryConfig registryConfig;
     private ProtocolConfig protocolConfig;
     private int port = 8080;
+    private int nettyPort = 9090;
 //    channel缓冲池
     public static final Map<InetSocketAddress, Channel> CHANNEL_CACHE = new ConcurrentHashMap<>(16);
 //    维护已经发布且暴露的服务列表 key -> interface全限定名、value - > ServiceConfig
@@ -128,13 +129,23 @@ public class LrpcBootStrap {
                      */
                     @Override
                     protected void initChannel(SocketChannel socketChannel) throws Exception {
-                        socketChannel.pipeline().addLast(null);
+                        socketChannel.pipeline().addLast(new SimpleChannelInboundHandler<>() {
+                            @Override
+                            protected void channelRead0(ChannelHandlerContext channelHandlerContext, Object o) throws Exception {
+                                ByteBuf byteBuf = (ByteBuf) o;
+                                log.info("byteBuf-->{}",byteBuf.toString(StandardCharsets.UTF_8));
+
+
+//                                向客户端返回
+                                channelHandlerContext.channel().writeAndFlush(Unpooled.copiedBuffer("lrpc-hello".getBytes()));
+                            }
+                        });
                     }
                 });
 //        4.绑定端口
         ChannelFuture channelFuture = null;
         try {
-            channelFuture = serverBootstrap.bind(port).sync();
+            channelFuture = serverBootstrap.bind(nettyPort).sync();
             channelFuture.channel().closeFuture().sync();
         } catch (InterruptedException e) {
             e.printStackTrace();

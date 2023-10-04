@@ -43,7 +43,7 @@ public class ZookeeperRegistry extends AbstractRegistry {
         //TODO 端口问题
         String hostNode = parentNode +"/"
                 + NetworkUtil.getIp()
-                + ":"+ 8081;
+                + ":"+ 9090;
         if (!ZookeeperUtil.exists(zookeeper,hostNode,null)){
             ZookeeperNode zookeeperNode = new ZookeeperNode(hostNode, null);
             ZookeeperUtil.createNode(zookeeper,zookeeperNode,null, CreateMode.EPHEMERAL);

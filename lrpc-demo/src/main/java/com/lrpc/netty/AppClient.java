@@ -23,7 +23,7 @@ public class AppClient implements Serializable {
         Bootstrap bootstrap = new Bootstrap();
         try {
         bootstrap = bootstrap.group(group)
-                .remoteAddress(new InetSocketAddress(8080))
+                .remoteAddress(new InetSocketAddress(8081))
 //                选择初始化一个什么样的channel
                 .channel(NioSocketChannel.class)
                 .handler(new ChannelInitializer<SocketChannel>() {
