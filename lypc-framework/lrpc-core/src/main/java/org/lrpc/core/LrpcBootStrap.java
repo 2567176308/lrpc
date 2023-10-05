@@ -7,6 +7,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LoggingHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.lrpc.common.IdGenerator;
 import org.lrpc.core.ChannelHandler.handler.LrpcRequestDecoder;
 import org.lrpc.core.ChannelHandler.handler.LrpcResponseEncoder;
 import org.lrpc.core.ChannelHandler.handler.MethodCallHandler;
@@ -28,6 +29,8 @@ public class LrpcBootStrap {
     private ProtocolConfig protocolConfig;
     private int port = 8080;
     private int nettyPort = 9090;
+
+    public static final IdGenerator ID_GENERATOR = new IdGenerator(1,2);
 //    channel缓冲池
     public static final Map<InetSocketAddress, Channel> CHANNEL_CACHE = new ConcurrentHashMap<>(16);
 //    维护已经发布且暴露的服务列表 key -> interface全限定名、value - > ServiceConfig

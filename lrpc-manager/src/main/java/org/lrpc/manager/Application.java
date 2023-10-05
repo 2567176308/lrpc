@@ -2,8 +2,8 @@ package org.lrpc.manager;
 
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.ZooKeeper;
-import org.lrpc.manager.util.zookeeper.ZookeeperNode;
-import org.lrpc.manager.util.zookeeper.ZookeeperUtil;
+import org.lrpc.common.util.zookeeper.ZookeeperNode;
+import org.lrpc.common.util.zookeeper.ZookeeperUtil;
 
 import java.util.List;
 

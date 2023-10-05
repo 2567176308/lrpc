@@ -1,9 +1,9 @@
-package org.lrpc.manager.util.zookeeper;
+package org.lrpc.common.util.zookeeper;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.zookeeper.*;
 import org.lrpc.common.Constant;
-import org.lrpc.manager.exception.ZookeeperException;
+import org.lrpc.common.exception.ZookeeperException;
 
 import java.io.IOException;
 import java.util.List;

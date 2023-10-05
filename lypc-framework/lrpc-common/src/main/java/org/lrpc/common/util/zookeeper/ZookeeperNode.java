@@ -1,4 +1,4 @@
-package org.lrpc.manager.util.zookeeper;
+package org.lrpc.common.util.zookeeper;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

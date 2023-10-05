@@ -1,4 +1,4 @@
-package org.lrpc.manager.exception;
+package org.lrpc.common.exception;
 
 public class NetworkException extends RuntimeException{
     public NetworkException(String msg) {

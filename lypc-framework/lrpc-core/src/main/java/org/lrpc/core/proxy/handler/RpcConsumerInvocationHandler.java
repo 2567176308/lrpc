@@ -1,6 +1,5 @@
 package org.lrpc.core.proxy.handler;
 
-import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +9,7 @@ import org.lrpc.core.discovery.Registry;
 import org.lrpc.core.enumeration.RequestType;
 import org.lrpc.core.transport.message.LrpcRequest;
 import org.lrpc.core.transport.message.RequestPayload;
-import org.lrpc.manager.exception.NetworkException;
+import org.lrpc.common.exception.NetworkException;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -69,7 +68,7 @@ public class RpcConsumerInvocationHandler implements InvocationHandler {
                 .build();
 //        TODO 对请求id 各种方式处理
         LrpcRequest lrpcRequest = LrpcRequest.builder()
-                .requestId(1L)
+                .requestId(LrpcBootStrap.ID_GENERATOR.getId())
                 .compressType((byte) 1)
                 .serializeType((byte) 1)
                 .requestType(RequestType.REQUEST.getId())

@@ -6,10 +6,10 @@ import org.apache.zookeeper.ZooKeeper;
 import org.lrpc.common.Constant;
 import org.lrpc.core.ServiceConfig;
 import org.lrpc.core.discovery.AbstractRegistry;
-import org.lrpc.manager.exception.DiscoveryException;
-import org.lrpc.manager.util.NetworkUtil;
-import org.lrpc.manager.util.zookeeper.ZookeeperNode;
-import org.lrpc.manager.util.zookeeper.ZookeeperUtil;
+import org.lrpc.common.exception.DiscoveryException;
+import org.lrpc.common.util.NetworkUtil;
+import org.lrpc.common.util.zookeeper.ZookeeperNode;
+import org.lrpc.common.util.zookeeper.ZookeeperUtil;
 
 import java.net.InetSocketAddress;
 import java.util.List;

@@ -4,9 +4,7 @@ import org.lrpc.common.Constant;
 import org.lrpc.core.discovery.Registry;
 import org.lrpc.core.discovery.impl.NacosRegistry;
 import org.lrpc.core.discovery.impl.ZookeeperRegistry;
-import org.lrpc.manager.exception.DiscoveryException;
-
-import java.util.Arrays;
+import org.lrpc.common.exception.DiscoveryException;
 
 public class RegistryConfig {
 //    定义连接的url zookeeper://127.0.0.1:2181 redis://192.168.3.12 ...

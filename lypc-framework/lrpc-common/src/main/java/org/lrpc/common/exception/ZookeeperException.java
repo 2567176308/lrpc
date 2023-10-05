@@ -1,4 +1,4 @@
-package org.lrpc.manager.exception;
+package org.lrpc.common.exception;
 
 public class ZookeeperException extends RuntimeException{
     public ZookeeperException(String msg) {

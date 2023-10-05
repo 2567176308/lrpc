@@ -1,6 +1,6 @@
-package org.lrpc.manager.util;
+package org.lrpc.common.util;
 
-import org.lrpc.manager.exception.NetworkException;
+import org.lrpc.common.exception.NetworkException;
 
 import java.net.Inet6Address;
 import java.net.InetAddress;
