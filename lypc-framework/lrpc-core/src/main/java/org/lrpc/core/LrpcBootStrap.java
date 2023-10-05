@@ -13,6 +13,7 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.ZooKeeper;
 import org.lrpc.common.Constant;
 import org.lrpc.core.ChannelHandler.handler.LrpcMessageDecoder;
+import org.lrpc.core.ChannelHandler.handler.MethodCallHandler;
 import org.lrpc.core.discovery.Registry;
 import org.lrpc.core.discovery.impl.ZookeeperRegistry;
 import org.lrpc.manager.util.NetworkUtil;
@@ -40,7 +41,7 @@ public class LrpcBootStrap {
 //    channel缓冲池
     public static final Map<InetSocketAddress, Channel> CHANNEL_CACHE = new ConcurrentHashMap<>(16);
 //    维护已经发布且暴露的服务列表 key -> interface全限定名、value - > ServiceConfig
-    private static final Map<String,ServiceConfig<?>> SERVICES_MAP = new ConcurrentHashMap<>(16);
+    public static final Map<String,ServiceConfig<?>> SERVICES_MAP = new ConcurrentHashMap<>(16);
 
 
 //    定义全局对外挂起的completableFuture
@@ -136,7 +137,8 @@ public class LrpcBootStrap {
                     @Override
                     protected void initChannel(SocketChannel socketChannel) throws Exception {
                         socketChannel.pipeline().addLast(new LoggingHandler())
-                                .addLast(new LrpcMessageDecoder());
+                                .addLast(new LrpcMessageDecoder())
+                                .addLast(new MethodCallHandler());
                     }
                 });
 //        4.绑定端口

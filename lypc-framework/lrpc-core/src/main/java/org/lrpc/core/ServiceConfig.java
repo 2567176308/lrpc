@@ -4,6 +4,10 @@ public class ServiceConfig<T> {
     private Class<T> interfaceRef;
 
     private Object ref;
+
+    public Object getRef(){
+        return ref;
+    }
     public void setInterface(Class<T> interfaceRef) {
         this.interfaceRef = interfaceRef;
     }

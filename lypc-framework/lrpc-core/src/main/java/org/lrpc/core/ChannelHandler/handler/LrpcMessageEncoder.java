@@ -54,7 +54,7 @@ public class LrpcMessageEncoder extends MessageToByteEncoder<LrpcRequest> {
 //        2个字节的头部长度
         byteBuf.writeShort(MessageFormatConstant.HEADER_LENGTH);
 //        总长度需求  writeIndex(写指针)
-        byteBuf.writerIndex(byteBuf.writerIndex() + 4);
+        byteBuf.writerIndex(byteBuf.writerIndex() + MessageFormatConstant.FULL_FILED_LENGTH);
 //        3个类型
         byteBuf.writeByte(lrpcRequest.getRequestType());
         byteBuf.writeByte(lrpcRequest.getSerializeType());
@@ -68,7 +68,9 @@ public class LrpcMessageEncoder extends MessageToByteEncoder<LrpcRequest> {
 //        重新处理报文的总长度
         int writerIndex = byteBuf.writerIndex();
 //        将写指针的位置移动到总长度的位置上
-        byteBuf.writerIndex(7);
+        byteBuf.writerIndex(MessageFormatConstant.MAGIC.length
+                + MessageFormatConstant.VERSION_LENGTH
+                +MessageFormatConstant.HEADER_FIELD_LENGTH);
         byteBuf.writeInt(MessageFormatConstant.HEADER_LENGTH + body.length);
 //        将写指针归位
         byteBuf.writerIndex(writerIndex);
