@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.lrpc.core.LrpcBootStrap;
 import org.lrpc.core.ServiceConfig;
 import org.lrpc.core.transport.message.LrpcRequest;
+import org.lrpc.core.transport.message.LrpcResponse;
 import org.lrpc.core.transport.message.RequestPayload;
 
 import java.lang.reflect.InvocationTargetException;
@@ -19,8 +20,19 @@ public class MethodCallHandler extends SimpleChannelInboundHandler<LrpcRequest> 
 //        2、根据负载内容进行方法调用
         Object obj = callTargetMethod(requestPayload);
 //        3、封装响应
+        LrpcResponse result = LrpcResponse.builder()
+                .body(obj)
+                .requestId(lrpcRequest.getRequestId())
+                .compressType(lrpcRequest.getCompressType())
+                .compressType(lrpcRequest.getRequestType())
+                .serializeType(lrpcRequest.getSerializeType())
+                .requestType(lrpcRequest.getRequestType())
+                .build();
 //        4、写出响应
-        channelHandlerContext.channel().writeAndFlush(obj);
+        if (log.isDebugEnabled()) {
+            log.debug("请求[{}]已经在服务端完成方法调用",lrpcRequest.getRequestId());
+        }
+        channelHandlerContext.channel().writeAndFlush(result);
     }
 
     private Object callTargetMethod(RequestPayload requestPayload) {

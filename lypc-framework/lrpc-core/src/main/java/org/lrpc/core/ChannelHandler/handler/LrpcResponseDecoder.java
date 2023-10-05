@@ -2,19 +2,21 @@ package org.lrpc.core.ChannelHandler.handler;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import lombok.extern.slf4j.Slf4j;
+import org.lrpc.core.enumeration.RequestType;
 import org.lrpc.core.transport.message.LrpcRequest;
+import org.lrpc.core.transport.message.LrpcResponse;
 import org.lrpc.core.transport.message.MessageFormatConstant;
 import org.lrpc.core.transport.message.RequestPayload;
 
 import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
-@Slf4j
-public class LrpcMessageDecoder extends LengthFieldBasedFrameDecoder {
 
-    public LrpcMessageDecoder() {
+@Slf4j
+public class LrpcResponseDecoder extends LengthFieldBasedFrameDecoder {
+
+    public LrpcResponseDecoder() {
 
         super(
 //                最大帧长度,超过这个值会直接丢弃
@@ -62,8 +64,8 @@ public class LrpcMessageDecoder extends LengthFieldBasedFrameDecoder {
 //        4、解析总长度
         int fulLength = byteBuf.readInt();
 
-//        5、请求类型 TODO 判断是不是心跳检测
-        byte  requestType = byteBuf.readByte();
+//        5、请求类型
+        byte  responseCode = byteBuf.readByte();
 //        6、序列化类型
         byte serializeType = byteBuf.readByte();
 //        7、压缩类型
@@ -71,19 +73,19 @@ public class LrpcMessageDecoder extends LengthFieldBasedFrameDecoder {
 //        8、请求id
         long requestId = byteBuf.readLong();
 //        封装
-        LrpcRequest lrpcRequest = new LrpcRequest();
-        lrpcRequest.setRequestId(requestId);
-        lrpcRequest.setRequestType(requestType);
-        lrpcRequest.setCompressType(compressType);
-        lrpcRequest.setSerializeType(serializeType);
+        LrpcResponse lrpcResponse = new LrpcResponse();
+        lrpcResponse.setCode(responseCode);
+        lrpcResponse.setCompressType(compressType);
+        lrpcResponse.setSerializeType(serializeType);
+        lrpcResponse.setRequestId(requestId);
 
-//        TODO心跳请求没有负载,此处可以判断并直接返回
-        if (requestType == 2) {
-            return lrpcRequest;
-        }
+//        TODO 心跳请求没有负载,此处可以判断并直接返回
+//        if (requestType == RequestType.HEART_BEAT.getId()) {
+//            return lrpcRequest;
+//        }
 
-        int payloadLength = fulLength - headLength ;
-        byte[] payload = new byte[payloadLength];
+        int bodyLength = fulLength - headLength ;
+        byte[] payload = new byte[bodyLength];
         byteBuf.readBytes(payload);
 
 //        TODO 解压缩
@@ -93,13 +95,17 @@ public class LrpcMessageDecoder extends LengthFieldBasedFrameDecoder {
             ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
         ) {
 
-            RequestPayload requestPayload = (RequestPayload)objectInputStream.readObject();
-            lrpcRequest.setRequestPayload(requestPayload);
+            Object body = objectInputStream.readObject();
+            lrpcResponse.setBody(body);
         }catch (Exception e) {
             log.error("请求[{}]序列化时发生了异常",requestId,e);
             throw new RuntimeException("序列化异常");
         }
-        return lrpcRequest;
+
+        if (log.isDebugEnabled()) {
+            log.debug("响应[{}]已经在调用端完成解码工作",lrpcResponse.getRequestId());
+        }
+        return lrpcResponse;
     }
 
 }

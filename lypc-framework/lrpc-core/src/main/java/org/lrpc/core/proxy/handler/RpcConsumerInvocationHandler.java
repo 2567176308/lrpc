@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.lrpc.core.LrpcBootStrap;
 import org.lrpc.core.NettyBootStrapInitializer;
 import org.lrpc.core.discovery.Registry;
+import org.lrpc.core.enumeration.RequestType;
 import org.lrpc.core.transport.message.LrpcRequest;
 import org.lrpc.core.transport.message.RequestPayload;
 import org.lrpc.manager.exception.NetworkException;
@@ -71,7 +72,7 @@ public class RpcConsumerInvocationHandler implements InvocationHandler {
                 .requestId(1L)
                 .compressType((byte) 1)
                 .serializeType((byte) 1)
-                .requestType((byte) 1)
+                .requestType(RequestType.REQUEST.getId())
                 .requestPayload(requestPayload)
                 .build();
                 /*
@@ -106,7 +107,7 @@ public class RpcConsumerInvocationHandler implements InvocationHandler {
         });
 //        5、获得响应的结果
 //                如果没有地方处理这个 completeFuture，这里会阻塞
-        return completableFuture.get(3,TimeUnit.SECONDS);
+        return completableFuture.get(10,TimeUnit.SECONDS);
     }
 
 

@@ -1,28 +1,18 @@
 package org.lrpc.core;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LoggingHandler;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.ZooKeeper;
-import org.lrpc.common.Constant;
-import org.lrpc.core.ChannelHandler.handler.LrpcMessageDecoder;
+import org.lrpc.core.ChannelHandler.handler.LrpcRequestDecoder;
+import org.lrpc.core.ChannelHandler.handler.LrpcResponseEncoder;
 import org.lrpc.core.ChannelHandler.handler.MethodCallHandler;
 import org.lrpc.core.discovery.Registry;
-import org.lrpc.core.discovery.impl.ZookeeperRegistry;
-import org.lrpc.manager.util.NetworkUtil;
-import org.lrpc.manager.util.zookeeper.ZookeeperNode;
-import org.lrpc.manager.util.zookeeper.ZookeeperUtil;
 
 import java.net.InetSocketAddress;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -137,8 +127,9 @@ public class LrpcBootStrap {
                     @Override
                     protected void initChannel(SocketChannel socketChannel) throws Exception {
                         socketChannel.pipeline().addLast(new LoggingHandler())
-                                .addLast(new LrpcMessageDecoder())
-                                .addLast(new MethodCallHandler());
+                                .addLast(new LrpcRequestDecoder())
+                                .addLast(new MethodCallHandler())
+                                .addLast(new LrpcResponseEncoder());
                     }
                 });
 //        4.绑定端口
