@@ -7,10 +7,12 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.logging.LoggingHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.ZooKeeper;
 import org.lrpc.common.Constant;
+import org.lrpc.core.ChannelHandler.handler.LrpcMessageDecoder;
 import org.lrpc.core.discovery.Registry;
 import org.lrpc.core.discovery.impl.ZookeeperRegistry;
 import org.lrpc.manager.util.NetworkUtil;
@@ -22,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
@@ -39,6 +42,9 @@ public class LrpcBootStrap {
 //    维护已经发布且暴露的服务列表 key -> interface全限定名、value - > ServiceConfig
     private static final Map<String,ServiceConfig<?>> SERVICES_MAP = new ConcurrentHashMap<>(16);
 
+
+//    定义全局对外挂起的completableFuture
+    public final static Map<Long, CompletableFuture<Object>> PENDING_REQUEST = new ConcurrentHashMap<>();
 //    TODO 待处理
     private Registry registry;
     private LrpcBootStrap() {
@@ -129,17 +135,8 @@ public class LrpcBootStrap {
                      */
                     @Override
                     protected void initChannel(SocketChannel socketChannel) throws Exception {
-                        socketChannel.pipeline().addLast(new SimpleChannelInboundHandler<>() {
-                            @Override
-                            protected void channelRead0(ChannelHandlerContext channelHandlerContext, Object o) throws Exception {
-                                ByteBuf byteBuf = (ByteBuf) o;
-                                log.info("byteBuf-->{}",byteBuf.toString(StandardCharsets.UTF_8));
-
-
-//                                向客户端返回
-                                channelHandlerContext.channel().writeAndFlush(Unpooled.copiedBuffer("lrpc-hello".getBytes()));
-                            }
-                        });
+                        socketChannel.pipeline().addLast(new LoggingHandler())
+                                .addLast(new LrpcMessageDecoder());
                     }
                 });
 //        4.绑定端口

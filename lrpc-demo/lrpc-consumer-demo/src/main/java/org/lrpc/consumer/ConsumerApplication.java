@@ -1,10 +1,11 @@
 package org.lrpc.consumer;
 
+import lombok.extern.slf4j.Slf4j;
 import org.lrpc.HelloLrpc;
 import org.lrpc.core.LrpcBootStrap;
 import org.lrpc.core.ReferenceConfig;
 import org.lrpc.core.RegistryConfig;
-
+@Slf4j
 public class ConsumerApplication {
     public static void main(String[] args) {
         /*
@@ -26,10 +27,9 @@ public class ConsumerApplication {
                 .application("first-rpc-consumer")
                 .registry(new RegistryConfig("zookeeper://127.0.0.1:2181"))
                 .reference(reference);
-
 //        获取一个代理对象
         HelloLrpc helloLrpc = reference.get();
-        helloLrpc.sayHi("你好");
-
+        String string = helloLrpc.sayHi("你好");
+        log.info("sayHi -->{}",string);
     }
 }
