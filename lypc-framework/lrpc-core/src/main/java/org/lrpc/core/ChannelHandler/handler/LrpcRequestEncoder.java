@@ -4,6 +4,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 import lombok.extern.slf4j.Slf4j;
+import org.lrpc.core.serializer.Serializer;
+import org.lrpc.core.serializer.SerializerFactory;
 import org.lrpc.core.transport.message.LrpcRequest;
 import org.lrpc.core.transport.message.MessageFormatConstant;
 import org.lrpc.core.transport.message.RequestPayload;
@@ -59,10 +61,15 @@ public class LrpcRequestEncoder extends MessageToByteEncoder<LrpcRequest> {
 //        8个字节请求id
         byteBuf.writeLong(lrpcRequest.getRequestId());
 //        写入请求体
-        byte[] body = getBodyBytes(lrpcRequest.getRequestPayload());
+//        获取具体序列化方法
+        Serializer serializer = SerializerFactory.getSerializer(lrpcRequest.getSerializeType())
+                .getSerializer();
+//        序列化
+        byte[] body = serializer.serialize(lrpcRequest.getRequestPayload());
         if (body != null) {
             byteBuf.writeBytes(body);
         }
+    //        TODO 压缩
         int bodyLength = body == null ? 0 : body.length;
 
 //        重新处理报文的总长度
@@ -79,20 +86,5 @@ public class LrpcRequestEncoder extends MessageToByteEncoder<LrpcRequest> {
         }
     }
 
-    private byte[] getBodyBytes(RequestPayload requestPayload) {
-//        TODO 针对不同的消息类型做出不同的处理
-        if (requestPayload == null) {
-            return null;
-        }
-        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-             ObjectOutputStream objectOutputStream=new ObjectOutputStream(byteArrayOutputStream)){
 
-            objectOutputStream.writeObject(requestPayload);
-            return byteArrayOutputStream.toByteArray();
-        } catch (IOException e) {
-            log.error("序列化出现异常");
-            throw new RuntimeException(e);
-        }
-
-    }
 }

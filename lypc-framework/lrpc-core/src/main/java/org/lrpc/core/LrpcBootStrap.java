@@ -36,6 +36,7 @@ public class LrpcBootStrap {
 //    维护已经发布且暴露的服务列表 key -> interface全限定名、value - > ServiceConfig
     public static final Map<String,ServiceConfig<?>> SERVICES_MAP = new ConcurrentHashMap<>(16);
 
+    public static String SERIALIZE_TYPE = "jdk";
 
 //    定义全局对外挂起的completableFuture
     public final static Map<Long, CompletableFuture<Object>> PENDING_REQUEST = new ConcurrentHashMap<>();
@@ -162,4 +163,16 @@ public class LrpcBootStrap {
         return this;
     }
 
+    /**
+     * 配置序列化方式，默认jdk
+     * @param serializeType 序列化类型
+     * @return this 实例对象
+     */
+    public LrpcBootStrap serialize(String serializeType) {
+        SERIALIZE_TYPE = serializeType;
+        if (log.isDebugEnabled()) {
+            log.debug("使用{}序列化方式",serializeType);
+        }
+        return this;
+    }
 }

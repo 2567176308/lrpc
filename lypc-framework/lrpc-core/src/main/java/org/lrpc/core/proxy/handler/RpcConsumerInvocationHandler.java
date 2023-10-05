@@ -7,6 +7,7 @@ import org.lrpc.core.LrpcBootStrap;
 import org.lrpc.core.NettyBootStrapInitializer;
 import org.lrpc.core.discovery.Registry;
 import org.lrpc.core.enumeration.RequestType;
+import org.lrpc.core.serializer.SerializerFactory;
 import org.lrpc.core.transport.message.LrpcRequest;
 import org.lrpc.core.transport.message.RequestPayload;
 import org.lrpc.common.exception.NetworkException;
@@ -70,7 +71,7 @@ public class RpcConsumerInvocationHandler implements InvocationHandler {
         LrpcRequest lrpcRequest = LrpcRequest.builder()
                 .requestId(LrpcBootStrap.ID_GENERATOR.getId())
                 .compressType((byte) 1)
-                .serializeType((byte) 1)
+                .serializeType(SerializerFactory.getSerializer(LrpcBootStrap.SERIALIZE_TYPE).getCode())
                 .requestType(RequestType.REQUEST.getId())
                 .requestPayload(requestPayload)
                 .build();

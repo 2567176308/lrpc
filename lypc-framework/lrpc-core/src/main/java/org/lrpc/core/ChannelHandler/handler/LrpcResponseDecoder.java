@@ -5,6 +5,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import lombok.extern.slf4j.Slf4j;
 import org.lrpc.core.enumeration.RequestType;
+import org.lrpc.core.serializer.Serializer;
+import org.lrpc.core.serializer.SerializerFactory;
 import org.lrpc.core.transport.message.LrpcRequest;
 import org.lrpc.core.transport.message.LrpcResponse;
 import org.lrpc.core.transport.message.MessageFormatConstant;
@@ -91,16 +93,10 @@ public class LrpcResponseDecoder extends LengthFieldBasedFrameDecoder {
 //        TODO 解压缩
 
 //        TODO 反序列化
-        try(ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(payload);
-            ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
-        ) {
-
-            Object body = objectInputStream.readObject();
-            lrpcResponse.setBody(body);
-        }catch (Exception e) {
-            log.error("请求[{}]序列化时发生了异常",requestId,e);
-            throw new RuntimeException("序列化异常");
-        }
+        Serializer serializer = SerializerFactory.getSerializer(serializeType)
+                .getSerializer();
+        Object body = serializer.deserialize(payload, Object.class);
+        lrpcResponse.setBody(body);
 
         if (log.isDebugEnabled()) {
             log.debug("响应[{}]已经在调用端完成解码工作",lrpcResponse.getRequestId());

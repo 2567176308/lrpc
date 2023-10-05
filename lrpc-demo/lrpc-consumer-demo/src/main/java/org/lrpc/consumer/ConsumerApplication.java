@@ -26,6 +26,7 @@ public class ConsumerApplication {
         LrpcBootStrap.getInstance()
                 .application("first-rpc-consumer")
                 .registry(new RegistryConfig("zookeeper://127.0.0.1:2181"))
+                .serialize("hessian")
                 .reference(reference);
 //        获取一个代理对象
         HelloLrpc helloLrpc = reference.get();
