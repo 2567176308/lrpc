@@ -5,6 +5,7 @@ import io.netty.channel.ChannelFutureListener;
 import lombok.extern.slf4j.Slf4j;
 import org.lrpc.core.LrpcBootStrap;
 import org.lrpc.core.NettyBootStrapInitializer;
+import org.lrpc.core.compress.CompressorFactory;
 import org.lrpc.core.discovery.Registry;
 import org.lrpc.core.enumeration.RequestType;
 import org.lrpc.core.serializer.SerializerFactory;
@@ -70,7 +71,7 @@ public class RpcConsumerInvocationHandler implements InvocationHandler {
 //        TODO 对请求id 各种方式处理
         LrpcRequest lrpcRequest = LrpcRequest.builder()
                 .requestId(LrpcBootStrap.ID_GENERATOR.getId())
-                .compressType((byte) 1)
+                .compressType(CompressorFactory.getCompressor(LrpcBootStrap.COMPRESS_TYPE).getCode())
                 .serializeType(SerializerFactory.getSerializer(LrpcBootStrap.SERIALIZE_TYPE).getCode())
                 .requestType(RequestType.REQUEST.getId())
                 .requestPayload(requestPayload)

@@ -4,6 +4,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import lombok.extern.slf4j.Slf4j;
+import org.lrpc.core.compress.Compressor;
+import org.lrpc.core.compress.CompressorFactory;
 import org.lrpc.core.enumeration.RequestType;
 import org.lrpc.core.serializer.Serializer;
 import org.lrpc.core.serializer.SerializerFactory;
@@ -88,8 +90,9 @@ public class LrpcRequestDecoder extends LengthFieldBasedFrameDecoder {
         byte[] payload = new byte[payloadLength];
         byteBuf.readBytes(payload);
 
-//        TODO 解压缩
-
+//        解压缩
+        Compressor compressor = CompressorFactory.getCompressor(lrpcRequest.getCompressType()).getCompressor();
+        payload = compressor.decompress(payload);
 //        获取具体序列化方式并反序列化
         Serializer serializer = SerializerFactory.getSerializer(serializeType)
                 .getSerializer();

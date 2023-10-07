@@ -4,6 +4,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 import lombok.extern.slf4j.Slf4j;
+import org.lrpc.core.compress.Compressor;
+import org.lrpc.core.compress.CompressorFactory;
 import org.lrpc.core.serializer.Serializer;
 import org.lrpc.core.serializer.SerializerFactory;
 import org.lrpc.core.transport.message.LrpcResponse;
@@ -64,6 +66,10 @@ public class LrpcResponseEncoder extends MessageToByteEncoder<LrpcResponse> {
         Serializer serializer = SerializerFactory.getSerializer(lrpcResponse.getSerializeType())
                 .getSerializer();
         byte[] body = serializer.serialize(lrpcResponse.getBody());
+
+//        压缩
+        Compressor compressor = CompressorFactory.getCompressor(lrpcResponse.getCompressType()).getCompressor();
+        body = compressor.compress(body);
         if (body != null) {
             byteBuf.writeBytes(body);
         }

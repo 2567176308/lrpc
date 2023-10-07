@@ -1,12 +1,13 @@
 package org.lrpc.core.serializer;
 
+import lombok.extern.slf4j.Slf4j;
 import org.lrpc.core.serializer.impl.HessianSerializer;
 import org.lrpc.core.serializer.impl.JdkSerializer;
 import org.lrpc.core.serializer.impl.JsonSerializer;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
+@Slf4j
 public class SerializerFactory {
 
     private static final Map<String,SerializerWrapper> SERIALIZER_CACHE = new ConcurrentHashMap<>();
@@ -33,8 +34,12 @@ public class SerializerFactory {
      * @return SerializerWrapper
      */
     public static SerializerWrapper getSerializer(String serializerType) {
-
-        return SERIALIZER_CACHE.get(serializerType);
+        SerializerWrapper serializerWrapper = SERIALIZER_CACHE.get(serializerType);
+        if (serializerWrapper == null) {
+            log.error("未找到您配置的[{}]的序列化策略，默认选用jdk序列化方式",serializerType);
+            return SERIALIZER_CACHE.get("jdk");
+        }
+        return serializerWrapper;
     }
 
     public static SerializerWrapper getSerializer(byte serializerTypeCode) {

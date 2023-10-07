@@ -21,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 public class LrpcBootStrap {
+    public static  String COMPRESS_TYPE = "gzip";
     private static final LrpcBootStrap lrpcBootStrap = new LrpcBootStrap();
 
 //    定义相关的基础配置
@@ -172,6 +173,13 @@ public class LrpcBootStrap {
         SERIALIZE_TYPE = serializeType;
         if (log.isDebugEnabled()) {
             log.debug("使用{}序列化方式",serializeType);
+        }
+        return this;
+    }
+    public LrpcBootStrap compress(String compressType) {
+        COMPRESS_TYPE = compressType;
+        if (log.isDebugEnabled()) {
+            log.debug("使用{}压缩方式",compressType);
         }
         return this;
     }

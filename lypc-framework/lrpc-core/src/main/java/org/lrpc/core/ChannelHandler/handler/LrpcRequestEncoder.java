@@ -4,6 +4,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 import lombok.extern.slf4j.Slf4j;
+import org.lrpc.core.compress.Compressor;
+import org.lrpc.core.compress.CompressorFactory;
 import org.lrpc.core.serializer.Serializer;
 import org.lrpc.core.serializer.SerializerFactory;
 import org.lrpc.core.transport.message.LrpcRequest;
@@ -66,10 +68,12 @@ public class LrpcRequestEncoder extends MessageToByteEncoder<LrpcRequest> {
                 .getSerializer();
 //        序列化
         byte[] body = serializer.serialize(lrpcRequest.getRequestPayload());
+//        根据配置信息压缩
+        Compressor compressor = CompressorFactory.getCompressor(lrpcRequest.getCompressType()).getCompressor();
+         body = compressor.compress(body);
         if (body != null) {
             byteBuf.writeBytes(body);
         }
-    //        TODO 压缩
         int bodyLength = body == null ? 0 : body.length;
 
 //        重新处理报文的总长度
