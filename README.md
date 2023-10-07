@@ -7,8 +7,9 @@
    4. - [x] server call method then return result as response
    5. - [x] using snowflake as IdGenerator create caller id
    6. - [x] jdk && hessian serialize implement || factoryMethod
-   7. - [ ] heartbeat
-   8. - [ ] load balancing
-   9. - [ ] Consistent hashing
-   10.    ...
+   7. - [x] compress message using Gzip
+   8. - [ ] heartbeat
+   9. - [ ] load balancing
+   10. - [ ] Consistent hashing
+   11.    ...
 
