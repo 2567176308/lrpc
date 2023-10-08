@@ -35,6 +35,7 @@ public class ConsumerApplication {
             HelloLrpc helloLrpc = reference.get();
             String string = helloLrpc.sayHi("你好");
             log.info("sayHi -->{}",string);
+            System.out.println((double) 128/65536);
         }
 
     }

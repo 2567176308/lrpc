@@ -14,7 +14,9 @@ import org.lrpc.core.channelHandler.handler.LrpcResponseEncoder;
 import org.lrpc.core.channelHandler.handler.MethodCallHandler;
 import org.lrpc.core.discovery.Registry;
 import org.lrpc.core.loadbalancer.LoadBalancer;
+import org.lrpc.core.loadbalancer.impl.ConsistentHashSelectorBalancer;
 import org.lrpc.core.loadbalancer.impl.RoundRobinLoadBalancer;
+import org.lrpc.core.transport.message.LrpcRequest;
 
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -24,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 public class LrpcBootStrap {
-    public static final int PORT = 9091;
+    public static final int PORT = 9092;
     public static  String COMPRESS_TYPE = "gzip";
     private static final LrpcBootStrap lrpcBootStrap = new LrpcBootStrap();
 
@@ -48,6 +50,9 @@ public class LrpcBootStrap {
     private Registry registry;
 
     public static LoadBalancer LOAD_BALANCER;
+
+    public static final ThreadLocal<LrpcRequest>  REQUEST_THREAD_LOCAL = new ThreadLocal<>();
+
     private LrpcBootStrap() {
     }
     public static LrpcBootStrap getInstance() {
@@ -76,7 +81,8 @@ public class LrpcBootStrap {
          */
         this.registry = registryConfig.getRegistry();
         this.registryConfig = registryConfig;
-        LOAD_BALANCER = new RoundRobinLoadBalancer();
+        LOAD_BALANCER = new ConsistentHashSelectorBalancer();
+
         return this;
     }
 

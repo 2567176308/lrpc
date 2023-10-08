@@ -40,8 +40,30 @@ public class RpcConsumerInvocationHandler implements InvocationHandler {
     }
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-//                1、获取当前配置的负载均衡器
 
+
+
+//        1、封装报文
+
+        RequestPayload requestPayload = RequestPayload.builder()
+                .interfaceName(interfaceRef.getName())
+                .methodName(method.getName())
+                .parametersType(method.getParameterTypes())
+                .parametersValues(args)
+                .returnType(method.getReturnType())
+                .build();
+
+
+        LrpcRequest lrpcRequest = LrpcRequest.builder()
+                .requestId(LrpcBootStrap.ID_GENERATOR.getId())
+                .compressType(CompressorFactory.getCompressor(LrpcBootStrap.COMPRESS_TYPE).getCode())
+                .serializeType(SerializerFactory.getSerializer(LrpcBootStrap.SERIALIZE_TYPE).getCode())
+                .requestType(RequestType.REQUEST.getId())
+                .requestPayload(requestPayload)
+                .build();
+//        将静秋存入本地线程，需要在合适的时间remove
+        LrpcBootStrap.REQUEST_THREAD_LOCAL.set(lrpcRequest);
+//        2、发现服务列表获取当前配置的负载均衡器
         InetSocketAddress address = LrpcBootStrap.LOAD_BALANCER.selectServiceAddress(interfaceRef.getName());
         if (log.isDebugEnabled()) {
             log.debug("服务调用方，返回了服务[{}]的可用主机[{}]",interfaceRef.getName(),address);
@@ -59,23 +81,7 @@ public class RpcConsumerInvocationHandler implements InvocationHandler {
                 /*
                 -------------------------------封装报文--------------------------------
                  */
-//        4、封装报文
 
-        RequestPayload requestPayload = RequestPayload.builder()
-                .interfaceName(interfaceRef.getName())
-                .methodName(method.getName())
-                .parametersType(method.getParameterTypes())
-                .parametersValues(args)
-                .returnType(method.getReturnType())
-                .build();
-//        TODO 对请求id 各种方式处理
-        LrpcRequest lrpcRequest = LrpcRequest.builder()
-                .requestId(LrpcBootStrap.ID_GENERATOR.getId())
-                .compressType(CompressorFactory.getCompressor(LrpcBootStrap.COMPRESS_TYPE).getCode())
-                .serializeType(SerializerFactory.getSerializer(LrpcBootStrap.SERIALIZE_TYPE).getCode())
-                .requestType(RequestType.REQUEST.getId())
-                .requestPayload(requestPayload)
-                .build();
                 /*
                 -------------------------------同步策略--------------------------------
                  */
@@ -106,6 +112,9 @@ public class RpcConsumerInvocationHandler implements InvocationHandler {
                 completableFuture.completeExceptionally(promise.cause());
             }
         });
+
+//        清理ThreadLocal
+        LrpcBootStrap.REQUEST_THREAD_LOCAL.remove();
 //        5、获得响应的结果
 //                如果没有地方处理这个 completeFuture，这里会阻塞
         return completableFuture.get(10,TimeUnit.SECONDS);
