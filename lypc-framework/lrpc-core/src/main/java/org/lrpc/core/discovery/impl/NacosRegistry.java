@@ -4,6 +4,7 @@ import org.lrpc.core.ServiceConfig;
 import org.lrpc.core.discovery.Registry;
 
 import java.net.InetSocketAddress;
+import java.util.List;
 
 public class NacosRegistry implements Registry {
     public NacosRegistry(String host, int timeOut) {
@@ -15,7 +16,7 @@ public class NacosRegistry implements Registry {
     }
 
     @Override
-    public InetSocketAddress lookup(String serviceName) {
+    public List<InetSocketAddress> lookup(String serviceName) {
         return null;
     }
 }

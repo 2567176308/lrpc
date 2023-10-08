@@ -1,12 +1,12 @@
-package org.lrpc.core.ChannelHandler;
+package org.lrpc.core.channelHandler;
 
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import org.lrpc.core.ChannelHandler.handler.LrpcRequestEncoder;
-import org.lrpc.core.ChannelHandler.handler.LrpcResponseDecoder;
-import org.lrpc.core.ChannelHandler.handler.MySimpleChannelInBoundHandler;
+import org.lrpc.core.channelHandler.handler.LrpcRequestEncoder;
+import org.lrpc.core.channelHandler.handler.LrpcResponseDecoder;
+import org.lrpc.core.channelHandler.handler.MySimpleChannelInBoundHandler;
 
 public class ConsumerChannelInitializer extends ChannelInitializer<SocketChannel> {
 

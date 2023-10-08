@@ -30,8 +30,12 @@ public class ConsumerApplication {
                 .compress("gzip")
                 .reference(reference);
 //        获取一个代理对象
-        HelloLrpc helloLrpc = reference.get();
-        String string = helloLrpc.sayHi("你好");
-        log.info("sayHi -->{}",string);
+
+        for (int i = 0; i < 3; i++) {
+            HelloLrpc helloLrpc = reference.get();
+            String string = helloLrpc.sayHi("你好");
+            log.info("sayHi -->{}",string);
+        }
+
     }
 }

@@ -1,4 +1,4 @@
-package org.lrpc.core.ChannelHandler.handler;
+package org.lrpc.core.channelHandler.handler;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;

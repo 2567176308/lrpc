@@ -8,8 +8,10 @@
    5. - [x] using snowflake as IdGenerator create caller id
    6. - [x] jdk && hessian serialize implement || factoryMethod
    7. - [x] compress message using Gzip
-   8. - [ ] heartbeat
-   9. - [ ] load balancing
-   10. - [ ] Consistent hashing
-   11.    ...
+   8. - [x] Round robin load balancing strategy
+   9. - [ ] Consistent Hash Load Balancing Strategy
+   10. - [ ] heartbeat
+   11. - [ ] load balancing
+   12. - [ ] Consistent hashing
+   13.    ...
 

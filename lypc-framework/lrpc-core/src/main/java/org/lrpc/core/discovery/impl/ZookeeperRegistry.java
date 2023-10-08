@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.ZooKeeper;
 import org.lrpc.common.Constant;
+import org.lrpc.core.LrpcBootStrap;
 import org.lrpc.core.ServiceConfig;
 import org.lrpc.core.discovery.AbstractRegistry;
 import org.lrpc.common.exception.DiscoveryException;
@@ -43,7 +44,7 @@ public class ZookeeperRegistry extends AbstractRegistry {
         //TODO 端口问题
         String hostNode = parentNode +"/"
                 + NetworkUtil.getIp()
-                + ":"+ 9090;
+                + ":"+ LrpcBootStrap.PORT;
         if (!ZookeeperUtil.exists(zookeeper,hostNode,null)){
             ZookeeperNode zookeeperNode = new ZookeeperNode(hostNode, null);
             ZookeeperUtil.createNode(zookeeper,zookeeperNode,null, CreateMode.EPHEMERAL);
@@ -54,7 +55,7 @@ public class ZookeeperRegistry extends AbstractRegistry {
     }
 
     @Override
-    public InetSocketAddress lookup(String serviceName) {
+    public List<InetSocketAddress> lookup(String serviceName) {
 //        找到服务对应的节点
         String serviceNode = Constant.BASE_PROVIDER_PATH + "/" + serviceName;
 //        2、从zk中获取她的子节点：ip+端口
@@ -69,6 +70,6 @@ public class ZookeeperRegistry extends AbstractRegistry {
         if (inetSocketAddresses.isEmpty()) {
             throw new DiscoveryException("没有找到任何服务");
         }
-        return inetSocketAddresses.get(0);
+        return inetSocketAddresses;
     }
 }

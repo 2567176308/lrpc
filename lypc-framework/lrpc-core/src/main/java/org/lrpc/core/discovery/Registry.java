@@ -3,6 +3,7 @@ package org.lrpc.core.discovery;
 import org.lrpc.core.ServiceConfig;
 
 import java.net.InetSocketAddress;
+import java.util.List;
 
 public interface Registry {
 
@@ -13,9 +14,9 @@ public interface Registry {
     void register(ServiceConfig<?> serviceConfig);
 
     /**
-     * 从注册中心拉去一个服务
+     * 从注册中心拉去一个服务列表
      * @param serviceName 服务名
      * @return InetSocketAddress
      */
-    InetSocketAddress lookup(String serviceName);
+    List<InetSocketAddress> lookup(String serviceName);
 }

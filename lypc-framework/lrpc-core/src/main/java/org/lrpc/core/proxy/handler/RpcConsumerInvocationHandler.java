@@ -40,9 +40,9 @@ public class RpcConsumerInvocationHandler implements InvocationHandler {
     }
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-//                1、发现服务、从注册中心，寻找一个可用服务
-//                传入服务器名字,返回ip+端口
-        InetSocketAddress address = registry.lookup(interfaceRef.getName());
+//                1、获取当前配置的负载均衡器
+
+        InetSocketAddress address = LrpcBootStrap.LOAD_BALANCER.selectServiceAddress(interfaceRef.getName());
         if (log.isDebugEnabled()) {
             log.debug("服务调用方，返回了服务[{}]的可用主机[{}]",interfaceRef.getName(),address);
         }

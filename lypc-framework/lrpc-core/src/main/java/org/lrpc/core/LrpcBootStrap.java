@@ -6,12 +6,15 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LoggingHandler;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.lrpc.common.IdGenerator;
-import org.lrpc.core.ChannelHandler.handler.LrpcRequestDecoder;
-import org.lrpc.core.ChannelHandler.handler.LrpcResponseEncoder;
-import org.lrpc.core.ChannelHandler.handler.MethodCallHandler;
+import org.lrpc.core.channelHandler.handler.LrpcRequestDecoder;
+import org.lrpc.core.channelHandler.handler.LrpcResponseEncoder;
+import org.lrpc.core.channelHandler.handler.MethodCallHandler;
 import org.lrpc.core.discovery.Registry;
+import org.lrpc.core.loadbalancer.LoadBalancer;
+import org.lrpc.core.loadbalancer.impl.RoundRobinLoadBalancer;
 
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -21,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 public class LrpcBootStrap {
+    public static final int PORT = 9091;
     public static  String COMPRESS_TYPE = "gzip";
     private static final LrpcBootStrap lrpcBootStrap = new LrpcBootStrap();
 
@@ -28,8 +32,6 @@ public class LrpcBootStrap {
     private String appName = "default";
     private RegistryConfig registryConfig;
     private ProtocolConfig protocolConfig;
-    private int port = 8080;
-    private int nettyPort = 9090;
 
     public static final IdGenerator ID_GENERATOR = new IdGenerator(1,2);
 //    channel缓冲池
@@ -42,7 +44,10 @@ public class LrpcBootStrap {
 //    定义全局对外挂起的completableFuture
     public final static Map<Long, CompletableFuture<Object>> PENDING_REQUEST = new ConcurrentHashMap<>();
 //    TODO 待处理
+    @Getter
     private Registry registry;
+
+    public static LoadBalancer LOAD_BALANCER;
     private LrpcBootStrap() {
     }
     public static LrpcBootStrap getInstance() {
@@ -71,6 +76,7 @@ public class LrpcBootStrap {
          */
         this.registry = registryConfig.getRegistry();
         this.registryConfig = registryConfig;
+        LOAD_BALANCER = new RoundRobinLoadBalancer();
         return this;
     }
 
@@ -140,7 +146,7 @@ public class LrpcBootStrap {
 //        4.绑定端口
         ChannelFuture channelFuture = null;
         try {
-            channelFuture = serverBootstrap.bind(nettyPort).sync();
+            channelFuture = serverBootstrap.bind(PORT).sync();
             channelFuture.channel().closeFuture().sync();
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -183,4 +189,5 @@ public class LrpcBootStrap {
         }
         return this;
     }
+
 }

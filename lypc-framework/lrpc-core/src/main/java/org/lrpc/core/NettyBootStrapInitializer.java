@@ -4,7 +4,7 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import lombok.extern.slf4j.Slf4j;
-import org.lrpc.core.ChannelHandler.ConsumerChannelInitializer;
+import org.lrpc.core.channelHandler.ConsumerChannelInitializer;
 
 //TODO Q:拓展性问题
 @Slf4j
