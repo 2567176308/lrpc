@@ -1,6 +1,7 @@
 package org.lrpc.core.loadbalancer.impl;
 
 import io.netty.channel.Channel;
+import lombok.extern.slf4j.Slf4j;
 import org.lrpc.common.exception.LoadBalancerException;
 import org.lrpc.core.LrpcBootStrap;
 import org.lrpc.core.loadbalancer.AbstractLoadBalancer;
@@ -11,7 +12,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.List;
 import java.util.Map;
-
+@Slf4j
 public class MinimumResponseTimeLoadBalancer extends AbstractLoadBalancer {
 
 
@@ -32,11 +33,18 @@ public class MinimumResponseTimeLoadBalancer extends AbstractLoadBalancer {
             Map.Entry<Long, Channel> entry = LrpcBootStrap
                     .ANSWER_TIME_CHANNEL_CACHE
                     .firstEntry();
+            InetSocketAddress address = null;
             if (entry != null) {
-                return (InetSocketAddress) entry.getValue().remoteAddress();
+                address =  (InetSocketAddress) entry.getValue().remoteAddress();
+            }else {
+                Channel channel = (Channel) LrpcBootStrap.CHANNEL_CACHE.values().toArray()[0];
+                address = (InetSocketAddress) channel.remoteAddress();
             }
-            Channel channel = (Channel) LrpcBootStrap.CHANNEL_CACHE.values().toArray()[0];
-            return (InetSocketAddress) channel.remoteAddress();
+
+            if (log.isDebugEnabled()) {
+                log.debug("选用[{}]服务器连接",address);
+            }
+            return address;
         }
 
         @Override

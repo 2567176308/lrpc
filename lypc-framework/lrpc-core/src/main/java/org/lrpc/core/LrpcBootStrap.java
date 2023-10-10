@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 public class LrpcBootStrap {
-    public static final int PORT = 9090;
+    public static final int PORT = 9091;
     public static String COMPRESS_TYPE = "gzip";
     private static final LrpcBootStrap lrpcBootStrap = new LrpcBootStrap();
 
