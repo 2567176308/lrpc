@@ -5,26 +5,35 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.lrpc.core.LrpcBootStrap;
 import org.lrpc.core.ServiceConfig;
+import org.lrpc.core.enumeration.RequestType;
 import org.lrpc.core.transport.message.LrpcRequest;
 import org.lrpc.core.transport.message.LrpcResponse;
 import org.lrpc.core.transport.message.RequestPayload;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
+/**
+ * 方法调用处理器，在此处获取经过解析后的请求对象、
+ * 通过反射方法调用并返回响应结果对象
+ */
 @Slf4j
 public class MethodCallHandler extends SimpleChannelInboundHandler<LrpcRequest> {
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, LrpcRequest lrpcRequest) throws Exception {
 //        1、获取负载内容
         RequestPayload requestPayload = lrpcRequest.getRequestPayload();
-//        2、根据负载内容进行方法调用
-        Object obj = callTargetMethod(requestPayload);
+        Object obj = null;
+        if (!(lrpcRequest.getRequestType() == RequestType.HEART_BEAT.getId())) {
+//            2、根据负载内容进行方法调用
+                    obj = callTargetMethod(requestPayload);
+        }
 //        3、封装响应
         LrpcResponse result = LrpcResponse.builder()
                 .body(obj)
                 .requestId(lrpcRequest.getRequestId())
                 .compressType(lrpcRequest.getCompressType())
-                .compressType(lrpcRequest.getRequestType())
+                .code((byte) 100 )
                 .serializeType(lrpcRequest.getSerializeType())
                 .requestType(lrpcRequest.getRequestType())
                 .build();
@@ -35,6 +44,12 @@ public class MethodCallHandler extends SimpleChannelInboundHandler<LrpcRequest> 
         channelHandlerContext.channel().writeAndFlush(result);
     }
 
+    /**
+     * 反射调用真实服务方提供方法
+     * @param requestPayload 请求调用负载
+     *（具体方法调用信息 接口名称、方法名称、方法参数类型列表、方法参数列表）
+     * @return 具体方法调用返回值
+     */
     private Object callTargetMethod(RequestPayload requestPayload) {
         String interfaceName = requestPayload.getInterfaceName();
         String methodName = requestPayload.getMethodName();

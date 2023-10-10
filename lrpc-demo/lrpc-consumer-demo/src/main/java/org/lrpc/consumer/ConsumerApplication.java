@@ -5,6 +5,8 @@ import org.lrpc.HelloLrpc;
 import org.lrpc.core.LrpcBootStrap;
 import org.lrpc.core.ReferenceConfig;
 import org.lrpc.core.RegistryConfig;
+import org.lrpc.core.heartBeat.HeartBeatDetector;
+
 @Slf4j
 public class ConsumerApplication {
     public static void main(String[] args) {
@@ -27,16 +29,16 @@ public class ConsumerApplication {
                 .application("first-rpc-consumer")
                 .registry(new RegistryConfig("zookeeper://127.0.0.1:2181"))
                 .serialize("hessian")
-                .compress("gzip")
+                .compress("snappy")
                 .reference(reference);
 //        获取一个代理对象
 
-        for (int i = 0; i < 3; i++) {
             HelloLrpc helloLrpc = reference.get();
             String string = helloLrpc.sayHi("你好");
             log.info("sayHi -->{}",string);
-            System.out.println((double) 128/65536);
-        }
 
+//        System.out.println("开启心跳检测");
+//        HeartBeatDetector.detectHeartbeat(HelloLrpc.class.getName());
+//
     }
 }

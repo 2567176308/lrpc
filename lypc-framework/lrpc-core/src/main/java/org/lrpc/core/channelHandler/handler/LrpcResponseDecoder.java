@@ -6,11 +6,15 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import lombok.extern.slf4j.Slf4j;
 import org.lrpc.core.compress.Compressor;
 import org.lrpc.core.compress.CompressorFactory;
+import org.lrpc.core.enumeration.RequestType;
 import org.lrpc.core.serializer.Serializer;
 import org.lrpc.core.serializer.SerializerFactory;
 import org.lrpc.core.transport.message.LrpcResponse;
 import org.lrpc.core.transport.message.MessageFormatConstant;
 
+/**
+ * 响应接码器、将请求响应报文解析为响应对象
+ */
 @Slf4j
 public class LrpcResponseDecoder extends LengthFieldBasedFrameDecoder {
 
@@ -61,9 +65,10 @@ public class LrpcResponseDecoder extends LengthFieldBasedFrameDecoder {
 
 //        4、解析总长度
         int fulLength = byteBuf.readInt();
-
+//        返回代码
+//        byte respCode = byteBuf.readByte();
 //        5、请求类型
-        byte  responseCode = byteBuf.readByte();
+        byte  requestType = byteBuf.readByte();
 //        6、序列化类型
         byte serializeType = byteBuf.readByte();
 //        7、压缩类型
@@ -72,11 +77,11 @@ public class LrpcResponseDecoder extends LengthFieldBasedFrameDecoder {
         long requestId = byteBuf.readLong();
 //        封装
         LrpcResponse lrpcResponse = new LrpcResponse();
-        lrpcResponse.setCode(responseCode);
+        lrpcResponse.setRequestType(requestType);
         lrpcResponse.setCompressType(compressType);
         lrpcResponse.setSerializeType(serializeType);
         lrpcResponse.setRequestId(requestId);
-
+//        lrpcResponse.setCode(respCode);
 //        TODO 心跳请求没有负载,此处可以判断并直接返回
 //        if (requestType == RequestType.HEART_BEAT.getId()) {
 //            return lrpcRequest;
@@ -86,15 +91,15 @@ public class LrpcResponseDecoder extends LengthFieldBasedFrameDecoder {
         byte[] payload = new byte[bodyLength];
         byteBuf.readBytes(payload);
 
-//         解压缩
-
-        Compressor compressor = CompressorFactory.getCompressor(lrpcResponse.getCompressType()).getCompressor();
-        payload = compressor.decompress(payload);
-
-//        TODO 反序列化
-        Serializer serializer = SerializerFactory.getSerializer(serializeType)
-                .getSerializer();
-        Object body = serializer.deserialize(payload, Object.class);
+//         解压缩与反序列化
+        Object body = null;
+        if (!(lrpcResponse.getRequestType() == RequestType.HEART_BEAT.getId())) {
+            Compressor compressor = CompressorFactory.getCompressor(lrpcResponse.getCompressType()).getCompressor();
+            payload = compressor.decompress(payload);
+            Serializer serializer = SerializerFactory.getSerializer(serializeType)
+                    .getSerializer();
+            body = serializer.deserialize(payload, Object.class);
+        }
         lrpcResponse.setBody(body);
 
         if (log.isDebugEnabled()) {

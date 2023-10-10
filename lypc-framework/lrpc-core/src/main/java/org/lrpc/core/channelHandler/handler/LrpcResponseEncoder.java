@@ -6,6 +6,8 @@ import io.netty.handler.codec.MessageToByteEncoder;
 import lombok.extern.slf4j.Slf4j;
 import org.lrpc.core.compress.Compressor;
 import org.lrpc.core.compress.CompressorFactory;
+import org.lrpc.core.enumeration.RequestType;
+import org.lrpc.core.enumeration.RespCode;
 import org.lrpc.core.serializer.Serializer;
 import org.lrpc.core.serializer.SerializerFactory;
 import org.lrpc.core.transport.message.LrpcResponse;
@@ -53,23 +55,25 @@ public class LrpcResponseEncoder extends MessageToByteEncoder<LrpcResponse> {
 //        总长度需求  writeIndex(写指针)
         byteBuf.writerIndex(byteBuf.writerIndex() + MessageFormatConstant.FULL_FILED_LENGTH);
 //        3个类型
-        byteBuf.writeByte(lrpcResponse.getCode());
+        byteBuf.writeByte(lrpcResponse.getRequestType());
         byteBuf.writeByte(lrpcResponse.getSerializeType());
         byteBuf.writeByte(lrpcResponse.getCompressType());
 //        8个字节请求id
         byteBuf.writeLong(lrpcResponse.getRequestId());
 //        写入请求体
-        Serializer serializer = SerializerFactory.getSerializer(lrpcResponse.getSerializeType())
-                .getSerializer();
-        byte[] body = serializer.serialize(lrpcResponse.getBody());
 
-//        压缩
-        Compressor compressor = CompressorFactory.getCompressor(lrpcResponse.getCompressType()).getCompressor();
-        body = compressor.compress(body);
+//        序列化与压缩
+        byte[] body = null;
+        if (!(lrpcResponse.getRequestType() == RequestType.HEART_BEAT.getId())) {
+            Serializer serializer = SerializerFactory.getSerializer(lrpcResponse.getSerializeType())
+                    .getSerializer();
+             body = serializer.serialize(lrpcResponse.getBody());
+            Compressor compressor = CompressorFactory.getCompressor(lrpcResponse.getCompressType()).getCompressor();
+            body = compressor.compress(body);
+        }
         if (body != null) {
             byteBuf.writeBytes(body);
         }
-//        TODO 压缩
         int bodyLength = body == null ? 0 : body.length;
 
 //        重新处理报文的总长度

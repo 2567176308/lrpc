@@ -6,7 +6,7 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import org.lrpc.core.channelHandler.handler.LrpcRequestEncoder;
 import org.lrpc.core.channelHandler.handler.LrpcResponseDecoder;
-import org.lrpc.core.channelHandler.handler.MySimpleChannelInBoundHandler;
+import org.lrpc.core.channelHandler.handler.ReturnValueChannelInBoundHandler;
 
 public class ConsumerChannelInitializer extends ChannelInitializer<SocketChannel> {
 
@@ -20,6 +20,6 @@ public class ConsumerChannelInitializer extends ChannelInitializer<SocketChannel
 //                入栈的解码器
                 .addLast(new LrpcResponseDecoder())
 //                处理结果
-                .addLast(new MySimpleChannelInBoundHandler());
+                .addLast(new ReturnValueChannelInBoundHandler());
     }
 }

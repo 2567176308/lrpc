@@ -1,5 +1,8 @@
 package org.lrpc.core.compress;
 
+/**
+ * 压缩器、压缩策略
+ */
 public interface Compressor {
 
     /**

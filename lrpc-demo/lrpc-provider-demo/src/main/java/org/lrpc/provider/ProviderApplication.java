@@ -5,6 +5,7 @@ import org.lrpc.core.LrpcBootStrap;
 import org.lrpc.core.ProtocolConfig;
 import org.lrpc.core.RegistryConfig;
 import org.lrpc.core.ServiceConfig;
+import org.lrpc.core.compress.CompressorFactory;
 import org.lrpc.provider.impl.HelloLrpcImpl;
 
 public class ProviderApplication {

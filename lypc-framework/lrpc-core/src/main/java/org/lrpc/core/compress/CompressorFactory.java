@@ -2,6 +2,7 @@ package org.lrpc.core.compress;
 
 import lombok.extern.slf4j.Slf4j;
 import org.lrpc.core.compress.impl.GzipCompressor;
+import org.lrpc.core.compress.impl.SnappyCompressor;
 import org.lrpc.core.serializer.SerializerWrapper;
 
 import java.util.Map;
@@ -17,8 +18,11 @@ public class CompressorFactory {
 
     static {
         CompressorWrapper gzip = new CompressorWrapper((byte) 1,"gzip",new GzipCompressor());
+        CompressorWrapper snappy = new CompressorWrapper((byte) 2,"snappy",new SnappyCompressor());
         COMPRESSOR_CACHE.put("gzip",gzip);
+        COMPRESSOR_CACHE.put("snappy",snappy);
         COMPRESSOR_CACHE_CODE.put((byte) 1,gzip);
+        COMPRESSOR_CACHE_CODE.put((byte) 2,snappy);
     }
 
     public static  CompressorWrapper getCompressor(String compressorType) {
@@ -31,7 +35,9 @@ public class CompressorFactory {
         return compressorWrapper;
     }
     public static CompressorWrapper getCompressor(byte compressorTypeCode) {
+
         return COMPRESSOR_CACHE_CODE.get(compressorTypeCode);
+
     }
 
 

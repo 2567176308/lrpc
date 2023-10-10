@@ -13,6 +13,10 @@ import org.lrpc.core.transport.message.LrpcRequest;
 import org.lrpc.core.transport.message.MessageFormatConstant;
 import org.lrpc.core.transport.message.RequestPayload;
 
+/**
+ * rpc请求解码器、将请求报文解析为请求对象
+ *
+ */
 @Slf4j
 public class LrpcRequestDecoder extends LengthFieldBasedFrameDecoder {
 
@@ -80,21 +84,25 @@ public class LrpcRequestDecoder extends LengthFieldBasedFrameDecoder {
         lrpcRequest.setSerializeType(serializeType);
 
 //        心跳请求没有负载,此处可以判断并直接返回
-        if (requestType == RequestType.HEART_BEAT.getId()) {
-            return lrpcRequest;
-        }
+//        if (requestType == RequestType.HEART_BEAT.getId()) {
+//            if (log.isDebugEnabled()) {
+//                log.debug("心跳请求，直接返回");
+//            }
+//            return lrpcRequest;
+//        }
 
         int payloadLength = fulLength - headLength ;
         byte[] payload = new byte[payloadLength];
         byteBuf.readBytes(payload);
-
-//        解压缩
-        Compressor compressor = CompressorFactory.getCompressor(lrpcRequest.getCompressType()).getCompressor();
-        payload = compressor.decompress(payload);
-//        获取具体序列化方式并反序列化
-        Serializer serializer = SerializerFactory.getSerializer(serializeType)
-                .getSerializer();
-        RequestPayload requestPayload = serializer.deserialize(payload, RequestPayload.class);
+        RequestPayload requestPayload = null;
+//        解压缩与反序列化
+        if (!(requestType == RequestType.HEART_BEAT.getId())) {
+            Compressor compressor = CompressorFactory.getCompressor(lrpcRequest.getCompressType()).getCompressor();
+            payload = compressor.decompress(payload);
+            Serializer serializer = SerializerFactory.getSerializer(serializeType)
+                    .getSerializer();
+            requestPayload = serializer.deserialize(payload, RequestPayload.class);
+        }
         lrpcRequest.setRequestPayload(requestPayload);
         if (log.isDebugEnabled()) {
             log.debug("请求[{}]已经在服务端完成解码工作",lrpcRequest.getRequestId());

@@ -1,5 +1,6 @@
 package org.lrpc.core.compress.impl;
 
+import io.netty.handler.codec.compression.Snappy;
 import lombok.extern.slf4j.Slf4j;
 import org.lrpc.core.compress.Compressor;
 
@@ -22,7 +23,7 @@ public class GzipCompressor implements Compressor {
             gzipOutputStream.finish();
             byte[] result = baos.toByteArray();
             if (log.isDebugEnabled()) {
-                log.debug("对字节数组压缩完成,长度由[{}],转化为[{}].",bytes.length,result.length);
+                log.debug("gzip对字节数组压缩完成,长度由[{}],转化为[{}].",bytes.length,result.length);
             }
             return result;
         } catch (IOException e) {
@@ -40,7 +41,7 @@ public class GzipCompressor implements Compressor {
             GZIPInputStream gzipInputStream = new GZIPInputStream(bais)) {
             byte[] result = gzipInputStream.readAllBytes();
             if (log.isDebugEnabled()) {
-                log.debug("对字节数组解压缩完成,长度由[{}],转化为[{}].",bytes.length,result.length);
+                log.debug("gzip对字节数组解压缩完成,长度由[{}],转化为[{}].",bytes.length,result.length);
             }
             return result;
         } catch (IOException e) {

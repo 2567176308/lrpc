@@ -41,8 +41,6 @@ public class RpcConsumerInvocationHandler implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
-
-
 //        1、封装报文
 
         RequestPayload requestPayload = RequestPayload.builder()
@@ -61,7 +59,7 @@ public class RpcConsumerInvocationHandler implements InvocationHandler {
                 .requestType(RequestType.REQUEST.getId())
                 .requestPayload(requestPayload)
                 .build();
-//        将静秋存入本地线程，需要在合适的时间remove
+//        将请求存入本地线程，需要在合适的时间remove
         LrpcBootStrap.REQUEST_THREAD_LOCAL.set(lrpcRequest);
 //        2、发现服务列表获取当前配置的负载均衡器
         InetSocketAddress address = LrpcBootStrap.LOAD_BALANCER.selectServiceAddress(interfaceRef.getName());
@@ -98,7 +96,7 @@ public class RpcConsumerInvocationHandler implements InvocationHandler {
 //                 需要将completable暴露出去
         CompletableFuture<Object> completableFuture = new CompletableFuture<>();
 
-        LrpcBootStrap.PENDING_REQUEST.put(1L,completableFuture);
+        LrpcBootStrap.PENDING_REQUEST.put(lrpcRequest.getRequestId(),completableFuture);
         channel.writeAndFlush(lrpcRequest).addListener((ChannelFutureListener) promise->{
                     /* 当前的promise将来返回的结果是什么？writeAndFlush返回的结果
                        一旦数据被写出去。这个promise就结束了
