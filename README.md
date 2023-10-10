@@ -9,9 +9,9 @@
    6. - [x] jdk && hessian serialize implement || factoryMethod
    7. - [x] compress message using Gzip
    8. - [x] Round robin load balancing strategy
-   9. - [ ] Consistent Hash Load Balancing Strategy
-   10. - [ ] heartbeat
-   11. - [ ] load balancing
-   12. - [ ] Consistent hashing
-   13.    ...
+   9. - [x] Consistent Hash Load Balancing Strategy
+   10. - [x] heartbeat
+   11. - [x] load balancing
+   12. - [x] Consistent hashing
+   13. - [x] Dynamic online and offline perception
 
