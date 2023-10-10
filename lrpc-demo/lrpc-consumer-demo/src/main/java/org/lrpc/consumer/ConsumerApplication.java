@@ -33,16 +33,22 @@ public class ConsumerApplication {
                 .reference(reference);
 //        获取一个代理对象
 //
-        for (int i = 0; i < 50; i++) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            HelloLrpc helloLrpc = reference.get();
+        HelloLrpc helloLrpc = reference.get();
+        for (int i = 0; i < 5; i++) {
             String string = helloLrpc.sayHi("你好");
             log.info("sayHi -->{}",string);
         }
+        try {
+            Thread.sleep(20000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+        for (int i = 0; i < 5; i++) {
+            String string = helloLrpc.sayHi("你好");
+            log.info("sayHi -->{}",string);
+        }
+
 
 
     }

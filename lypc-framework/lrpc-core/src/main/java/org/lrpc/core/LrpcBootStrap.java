@@ -14,6 +14,7 @@ import org.lrpc.core.channelHandler.handler.LrpcResponseEncoder;
 import org.lrpc.core.channelHandler.handler.MethodCallHandler;
 import org.lrpc.core.discovery.Registry;
 import org.lrpc.core.heartBeat.HeartBeatDetector;
+import org.lrpc.core.loadbalancer.AbstractLoadBalancer;
 import org.lrpc.core.loadbalancer.LoadBalancer;
 import org.lrpc.core.loadbalancer.impl.ConsistentHashSelectorBalancer;
 import org.lrpc.core.loadbalancer.impl.MinimumResponseTimeLoadBalancer;
@@ -29,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 public class LrpcBootStrap {
-    public static final int PORT = 9091;
+    public static final int PORT = 9093;
     public static String COMPRESS_TYPE = "gzip";
     private static final LrpcBootStrap lrpcBootStrap = new LrpcBootStrap();
 
@@ -85,7 +86,7 @@ public class LrpcBootStrap {
          */
         this.registry = registryConfig.getRegistry();
         this.registryConfig = registryConfig;
-        LOAD_BALANCER = new MinimumResponseTimeLoadBalancer();
+        LOAD_BALANCER = new RoundRobinLoadBalancer();
 
         return this;
     }

@@ -21,6 +21,11 @@ public class MinimumResponseTimeLoadBalancer extends AbstractLoadBalancer {
         return new MinimumResponseTimeSelector(serverList);
     }
 
+    @Override
+    public void reBalance() {
+
+    }
+
     private static class MinimumResponseTimeSelector implements Selector {
 
 
@@ -36,14 +41,15 @@ public class MinimumResponseTimeLoadBalancer extends AbstractLoadBalancer {
             InetSocketAddress address = null;
             if (entry != null) {
                 address =  (InetSocketAddress) entry.getValue().remoteAddress();
+                if (log.isDebugEnabled()) {
+                    log.debug("选延迟时间为[{}]服务器[{}]连接",entry.getKey(),address);
+                }
             }else {
                 Channel channel = (Channel) LrpcBootStrap.CHANNEL_CACHE.values().toArray()[0];
                 address = (InetSocketAddress) channel.remoteAddress();
             }
 
-            if (log.isDebugEnabled()) {
-                log.debug("选用[{}]服务器连接",address);
-            }
+
             return address;
         }
 

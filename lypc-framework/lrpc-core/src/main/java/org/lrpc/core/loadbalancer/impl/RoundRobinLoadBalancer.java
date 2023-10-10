@@ -20,10 +20,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Slf4j
 public class RoundRobinLoadBalancer extends AbstractLoadBalancer {
 
+        RoundRobinSelector roundRobinSelector = new RoundRobinSelector();
 
     @Override
     protected Selector getSelector(List<InetSocketAddress> serverList) {
-        return new RoundRobinSelector(serverList);
+        roundRobinSelector.setServiceList(serverList);
+        return roundRobinSelector;
+    }
+
+    @Override
+    public void reBalance() {
+        roundRobinSelector.reBalance();
     }
 
     private static class RoundRobinSelector implements Selector {
@@ -35,6 +42,13 @@ public class RoundRobinLoadBalancer extends AbstractLoadBalancer {
         public RoundRobinSelector(List<InetSocketAddress> serviceList) {
             this.serviceList = serviceList;
             this.index = new AtomicInteger(0);
+        }
+        public RoundRobinSelector(){
+            this.index = new AtomicInteger(0);
+        }
+
+        public void setServiceList(List<InetSocketAddress> serviceList) {
+            this.serviceList = serviceList;
         }
 
         @Override
@@ -59,7 +73,9 @@ public class RoundRobinLoadBalancer extends AbstractLoadBalancer {
 
         @Override
         public void reBalance() {
-
+//            根据是否有服务上下线重新更新维护serviceList
+            serviceList = LrpcBootStrap.CHANNEL_CACHE.keySet()
+                    .stream().toList();
         }
     }
 }

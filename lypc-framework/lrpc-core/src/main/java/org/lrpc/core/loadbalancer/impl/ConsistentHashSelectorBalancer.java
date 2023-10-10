@@ -27,6 +27,11 @@ public class ConsistentHashSelectorBalancer extends AbstractLoadBalancer {
         return new ConsistentHashSelector(serverList,128);
     }
 
+    @Override
+    public void reBalance() {
+
+    }
+
     private static class ConsistentHashSelector implements Selector {
 
         /*

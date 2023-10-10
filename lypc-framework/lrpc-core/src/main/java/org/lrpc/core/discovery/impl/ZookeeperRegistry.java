@@ -11,6 +11,7 @@ import org.lrpc.common.exception.DiscoveryException;
 import org.lrpc.common.util.NetworkUtil;
 import org.lrpc.common.util.zookeeper.ZookeeperNode;
 import org.lrpc.common.util.zookeeper.ZookeeperUtil;
+import org.lrpc.core.discovery.watcher.UpAndDownWatcher;
 
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -59,7 +60,7 @@ public class ZookeeperRegistry extends AbstractRegistry {
 //        找到服务对应的节点
         String serviceNode = Constant.BASE_PROVIDER_PATH + "/" + serviceName;
 //        2、从zk中获取她的子节点：ip+端口
-        List<String> children = ZookeeperUtil.getChildren(zookeeper,serviceNode,null);
+        List<String> children = ZookeeperUtil.getChildren(zookeeper, serviceNode, new UpAndDownWatcher());
         List<InetSocketAddress> inetSocketAddresses = children.stream()
                 .map(ipString -> {
                     String[] ipAndPort = ipString.split(":");

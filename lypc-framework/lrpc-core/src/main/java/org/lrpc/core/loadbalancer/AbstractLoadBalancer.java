@@ -41,5 +41,9 @@ public abstract class AbstractLoadBalancer implements LoadBalancer{
      */
     protected abstract Selector getSelector(List<InetSocketAddress> serverList);
 
+    /**
+     * 由于节点发生变化重新实现负载均衡均衡
+     */
+
 
 }

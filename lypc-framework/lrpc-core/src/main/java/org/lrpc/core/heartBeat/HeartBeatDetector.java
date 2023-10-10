@@ -23,6 +23,10 @@ import java.util.concurrent.TimeoutException;
  */
 @Slf4j
 public class HeartBeatDetector {
+    /**
+     * 心跳检测
+     * @param serviceName 服务名
+     */
 
     public static void detectHeartbeat(String serviceName) {
 //        从注册中心拉去服务缓存列表并进行连接
@@ -49,7 +53,11 @@ public class HeartBeatDetector {
 //        将连接进行缓存
 //        任务、发送心跳请求
     }
+
     static class MyTimerTask extends TimerTask {
+        /**
+         * 发送心跳检测
+         */
         @Override
         public void run() {
             LrpcBootStrap.ANSWER_TIME_CHANNEL_CACHE.clear();
