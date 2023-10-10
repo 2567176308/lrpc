@@ -13,6 +13,8 @@ import org.lrpc.core.transport.message.LrpcRequest;
 import org.lrpc.core.transport.message.MessageFormatConstant;
 import org.lrpc.core.transport.message.RequestPayload;
 
+import java.util.Random;
+
 /**
  * rpc请求解码器、将请求报文解析为请求对象
  *
@@ -39,6 +41,9 @@ public class LrpcRequestDecoder extends LengthFieldBasedFrameDecoder {
     //        解码器
     @Override
     protected Object decode(ChannelHandlerContext ctx, ByteBuf in) throws Exception {
+
+        Thread.sleep(new Random().nextInt(50));
+
         Object decode = super.decode(ctx, in);
         if (decode instanceof ByteBuf byteBuf) {
             return decodeFrame(byteBuf);

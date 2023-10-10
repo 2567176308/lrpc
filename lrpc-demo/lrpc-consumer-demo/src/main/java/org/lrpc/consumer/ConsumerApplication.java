@@ -32,13 +32,18 @@ public class ConsumerApplication {
                 .compress("snappy")
                 .reference(reference);
 //        获取一个代理对象
-
+//
+//        try {
+//            Thread.sleep(5000);
+//        } catch (InterruptedException e) {
+//            throw new RuntimeException(e);
+//        }
+        for (int i = 0; i < 5; i++) {
             HelloLrpc helloLrpc = reference.get();
             String string = helloLrpc.sayHi("你好");
             log.info("sayHi -->{}",string);
+        }
 
-//        System.out.println("开启心跳检测");
-//        HeartBeatDetector.detectHeartbeat(HelloLrpc.class.getName());
-//
+
     }
 }

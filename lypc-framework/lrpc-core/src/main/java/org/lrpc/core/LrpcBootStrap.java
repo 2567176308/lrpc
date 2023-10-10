@@ -13,20 +13,23 @@ import org.lrpc.core.channelHandler.handler.LrpcRequestDecoder;
 import org.lrpc.core.channelHandler.handler.LrpcResponseEncoder;
 import org.lrpc.core.channelHandler.handler.MethodCallHandler;
 import org.lrpc.core.discovery.Registry;
+import org.lrpc.core.heartBeat.HeartBeatDetector;
 import org.lrpc.core.loadbalancer.LoadBalancer;
 import org.lrpc.core.loadbalancer.impl.ConsistentHashSelectorBalancer;
+import org.lrpc.core.loadbalancer.impl.MinimumResponseTimeLoadBalancer;
 import org.lrpc.core.loadbalancer.impl.RoundRobinLoadBalancer;
 import org.lrpc.core.transport.message.LrpcRequest;
 
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 public class LrpcBootStrap {
-    public static final int PORT = 9092;
+    public static final int PORT = 9090;
     public static String COMPRESS_TYPE = "gzip";
     private static final LrpcBootStrap lrpcBootStrap = new LrpcBootStrap();
 
@@ -41,6 +44,7 @@ public class LrpcBootStrap {
 //    维护已经发布且暴露的服务列表 key -> interface全限定名、value - > ServiceConfig
     public static final Map<String,ServiceConfig<?>> SERVICES_MAP = new ConcurrentHashMap<>(16);
 
+    public static final TreeMap<Long,Channel> ANSWER_TIME_CHANNEL_CACHE = new TreeMap<>();
     public static String SERIALIZE_TYPE = "jdk";
 
 //    定义全局对外挂起的completableFuture
@@ -81,7 +85,7 @@ public class LrpcBootStrap {
          */
         this.registry = registryConfig.getRegistry();
         this.registryConfig = registryConfig;
-        LOAD_BALANCER = new ConsistentHashSelectorBalancer();
+        LOAD_BALANCER = new MinimumResponseTimeLoadBalancer();
 
         return this;
     }
@@ -170,6 +174,9 @@ public class LrpcBootStrap {
      * ------------------------服务调用方的相关api--------------------------------------------------
      */
     public LrpcBootStrap reference(ReferenceConfig<?> reference) {
+
+//        开启对这个服务的心跳检测
+        HeartBeatDetector.detectHeartbeat(reference.getInterface().getName());
 //        在这个方法里我们是否可以拿到相关配置项-注册中心
 //        配置reference，将来调用get方法时，方便产生代理对象
         reference.setRegistry(registry);
