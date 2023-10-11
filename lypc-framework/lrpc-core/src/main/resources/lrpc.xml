@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE configuration SYSTEM "http://lprc.org/lrpc-config.dtd">
+<configuration>
+    <port>9090</port>
+    <appName>lrpc-default-appName</appName>
+    <registry url="zookeeper://127.0.0.1:2181"/>
+
+<!--    二选一-->
+    <compressType type="gzip"/>
+    <compresser class="org.lrpc.core.compress.impl.GzipCompressor"/>
+
+    <!--    二选一-->
+    <serializer class="org.lrpc.core.serializer.impl.HessianSerializer"/>
+    <serializeType type="hessian"/>
+
+    <!--    二选一-->
+    <loadBalancer class="org.lrpc.core.loadbalancer.impl.RoundRobinLoadBalancer"/>
+    <loadBalancerType type="roundRobin"/>
+    <idGenerator class="org.lrpc.common.IdGenerator" dataCenter="1" MechineID="2"/>
+</configuration>
