@@ -34,20 +34,20 @@ public class ConsumerApplication {
 //        获取一个代理对象
 //
         HelloLrpc helloLrpc = reference.get();
-        for (int i = 0; i < 5; i++) {
-            String string = helloLrpc.sayHi("你好");
-            log.info("sayHi -->{}",string);
+
+        while (true) {
+            System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+            for (int i = 0; i < 5; i++) {
+                String string = helloLrpc.sayHi("你好");
+                log.info("sayHi -->{}",string);
+            }
+            try {
+                Thread.sleep(20000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
-        try {
-            Thread.sleep(20000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-        for (int i = 0; i < 5; i++) {
-            String string = helloLrpc.sayHi("你好");
-            log.info("sayHi -->{}",string);
-        }
+
 
 
 

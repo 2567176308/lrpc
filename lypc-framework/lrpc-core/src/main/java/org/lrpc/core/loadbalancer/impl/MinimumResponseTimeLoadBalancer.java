@@ -21,10 +21,7 @@ public class MinimumResponseTimeLoadBalancer extends AbstractLoadBalancer {
         return new MinimumResponseTimeSelector(serverList);
     }
 
-    @Override
-    public void reBalance() {
 
-    }
 
     private static class MinimumResponseTimeSelector implements Selector {
 
@@ -53,9 +50,5 @@ public class MinimumResponseTimeLoadBalancer extends AbstractLoadBalancer {
             return address;
         }
 
-        @Override
-        public void reBalance() {
-
-        }
     }
 }

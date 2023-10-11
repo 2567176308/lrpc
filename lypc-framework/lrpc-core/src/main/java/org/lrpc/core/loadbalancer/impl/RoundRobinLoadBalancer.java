@@ -28,10 +28,6 @@ public class RoundRobinLoadBalancer extends AbstractLoadBalancer {
         return roundRobinSelector;
     }
 
-    @Override
-    public void reBalance() {
-        roundRobinSelector.reBalance();
-    }
 
     private static class RoundRobinSelector implements Selector {
 
@@ -71,11 +67,5 @@ public class RoundRobinLoadBalancer extends AbstractLoadBalancer {
             return address;
         }
 
-        @Override
-        public void reBalance() {
-//            根据是否有服务上下线重新更新维护serviceList
-            serviceList = LrpcBootStrap.CHANNEL_CACHE.keySet()
-                    .stream().toList();
-        }
     }
 }

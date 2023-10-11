@@ -20,9 +20,9 @@ public class ProviderApplication {
         (2) 发布服务
          */
 
-        ServiceConfig<HelloLrpc> service = new ServiceConfig<>();
-        service.setInterface(HelloLrpc.class);
-        service.setRef(new HelloLrpcImpl());
+//        ServiceConfig<HelloLrpc> service = new ServiceConfig<>();
+//        service.setInterface(HelloLrpc.class);
+//        service.setRef(new HelloLrpcImpl());
 
         LrpcBootStrap.getInstance()
                 .application("first-rpc-provider")
@@ -31,7 +31,9 @@ public class ProviderApplication {
 //                配置协议
                 .protocol(new ProtocolConfig("jdk"))
 //                发布服务
-                .publish(service)
+//                .publish(service)
+//                扫描改包，并将服务全部publish
+                .scan("org.lrpc.provider.impl")
                 .start();
     }
 }

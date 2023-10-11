@@ -22,6 +22,8 @@ public abstract class AbstractLoadBalancer implements LoadBalancer{
 //            cache中没有、创建一个
             List<InetSocketAddress> serviceList = LrpcBootStrap
                     .getInstance()
+                    .getConfiguration()
+                    .getRegistryConfig()
                     .getRegistry()
                     .lookup(serviceName);
 //        提供一些算法负责选取合适的节点
@@ -34,6 +36,12 @@ public abstract class AbstractLoadBalancer implements LoadBalancer{
 
 
     }
+
+    @Override
+    public synchronized void reLoadBalance(String serviceName, List<InetSocketAddress> addresses) {
+        cache.put(serviceName,getSelector(addresses));
+    }
+
     /**
      * 由子类扩展
      * @param serverList 服务列表

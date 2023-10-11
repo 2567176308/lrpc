@@ -30,7 +30,11 @@ public class HeartBeatDetector {
 
     public static void detectHeartbeat(String serviceName) {
 //        从注册中心拉去服务缓存列表并进行连接
-        Registry registry = LrpcBootStrap.getInstance().getRegistry();
+        Registry registry = LrpcBootStrap
+                .getInstance()
+                .getConfiguration()
+                .getRegistryConfig()
+                .getRegistry();
         List<InetSocketAddress> addresses = registry.lookup(serviceName);
         for (InetSocketAddress address : addresses) {
             try {
@@ -67,10 +71,10 @@ public class HeartBeatDetector {
                 Channel channel = entry.getValue();
 //            构建一个心跳请求
                 LrpcRequest lrpcRequest = LrpcRequest.builder()
-                        .requestId(LrpcBootStrap.ID_GENERATOR.getId())
-                        .compressType(CompressorFactory.getCompressor(LrpcBootStrap.COMPRESS_TYPE).getCode())
+                        .requestId(LrpcBootStrap.getInstance().getConfiguration().getIdGenerator().getId())
+                        .compressType(CompressorFactory.getCompressor(LrpcBootStrap.getInstance().getConfiguration().getCompressType()).getCode())
                         .requestType(RequestType.HEART_BEAT.getId())
-                        .serializeType(SerializerFactory.getSerializer(LrpcBootStrap.SERIALIZE_TYPE).getCode())
+                        .serializeType(SerializerFactory.getSerializer(LrpcBootStrap.getInstance().getConfiguration().getSerializeType()).getCode())
                         .build();
                 //        写出报文
                 CompletableFuture<Object> completableFuture = new CompletableFuture<>();

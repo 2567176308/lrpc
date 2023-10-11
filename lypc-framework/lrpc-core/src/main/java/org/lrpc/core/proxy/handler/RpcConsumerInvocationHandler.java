@@ -30,8 +30,9 @@ import java.util.concurrent.TimeoutException;
  */
 @Slf4j
 public class RpcConsumerInvocationHandler implements InvocationHandler {
-
+//    注册中心
     private final Registry registry;
+//    使用服务所在接口
     private final Class<?> interfaceRef;
 
     public RpcConsumerInvocationHandler(Registry registry,Class<?> interfaceRef){
@@ -41,7 +42,7 @@ public class RpcConsumerInvocationHandler implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
-//        1、封装报文
+//        1、封装请求体
 
         RequestPayload requestPayload = RequestPayload.builder()
                 .interfaceName(interfaceRef.getName())
@@ -51,18 +52,21 @@ public class RpcConsumerInvocationHandler implements InvocationHandler {
                 .returnType(method.getReturnType())
                 .build();
 
-
         LrpcRequest lrpcRequest = LrpcRequest.builder()
-                .requestId(LrpcBootStrap.ID_GENERATOR.getId())
-                .compressType(CompressorFactory.getCompressor(LrpcBootStrap.COMPRESS_TYPE).getCode())
-                .serializeType(SerializerFactory.getSerializer(LrpcBootStrap.SERIALIZE_TYPE).getCode())
+                .requestId(LrpcBootStrap.getInstance().getConfiguration().getIdGenerator().getId())
+                .compressType(CompressorFactory.getCompressor(LrpcBootStrap.getInstance().getConfiguration().getCompressType()).getCode())
+                .serializeType(SerializerFactory.getSerializer(LrpcBootStrap.getInstance().getConfiguration().getSerializeType()).getCode())
                 .requestType(RequestType.REQUEST.getId())
                 .requestPayload(requestPayload)
                 .build();
 //        将请求存入本地线程，需要在合适的时间remove
         LrpcBootStrap.REQUEST_THREAD_LOCAL.set(lrpcRequest);
 //        2、发现服务列表获取当前配置的负载均衡器
-        InetSocketAddress address = LrpcBootStrap.LOAD_BALANCER.selectServiceAddress(interfaceRef.getName());
+        InetSocketAddress address = LrpcBootStrap
+                .getInstance()
+                .getConfiguration()
+                .getLoadBalancer()
+                .selectServiceAddress(interfaceRef.getName());
         if (log.isDebugEnabled()) {
             log.debug("服务调用方，返回了服务[{}]的可用主机[{}]",interfaceRef.getName(),address);
         }
@@ -75,7 +79,6 @@ public class RpcConsumerInvocationHandler implements InvocationHandler {
         if (log.isDebugEnabled()) {
             log.debug("获取了和[{}]的建立连接通道，准备发送数据",address);
         }
-
                 /*
                 -------------------------------封装报文--------------------------------
                  */
@@ -110,7 +113,6 @@ public class RpcConsumerInvocationHandler implements InvocationHandler {
                 completableFuture.completeExceptionally(promise.cause());
             }
         });
-
 //        清理ThreadLocal
         LrpcBootStrap.REQUEST_THREAD_LOCAL.remove();
 //        5、获得响应的结果

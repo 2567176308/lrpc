@@ -27,10 +27,7 @@ public class ConsistentHashSelectorBalancer extends AbstractLoadBalancer {
         return new ConsistentHashSelector(serverList,128);
     }
 
-    @Override
-    public void reBalance() {
 
-    }
 
     private static class ConsistentHashSelector implements Selector {
 
@@ -71,10 +68,7 @@ public class ConsistentHashSelectorBalancer extends AbstractLoadBalancer {
 
         }
 
-        @Override
-        public void reBalance() {
 
-        }
         /**
          * 将每个节点挂在到hash环上
          * @param inetSocketAddress 地址
